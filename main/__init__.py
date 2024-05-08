@@ -48,11 +48,13 @@ mysql.init_app(app)
 from user_module.user_url import user_bp
 from supplier_module.inventory_suppliers.inventory_supplier_url import inventory_supplier_bp
 from products_module.products_url import products_bp
+from inventory_module.distribution_centers_url import distribution_center_bp
 
 
-app.register_blueprint(user_bp, url_prefix="/api/v1/users")
+app.register_blueprint(user_bp, url_prefix="/api/v1/users") 
 app.register_blueprint(inventory_supplier_bp, url_prefix="/api/v1/suppliers")
 app.register_blueprint(products_bp, url_prefix="/api/v1/products")
+app.register_blueprint(distribution_center_bp, url_prefix="/api/v1/distribution-centers")
 
 # Upload folder
 app.config['UPLOAD_FOLDER'] = 'static/files'

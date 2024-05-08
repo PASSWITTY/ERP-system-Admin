@@ -141,7 +141,6 @@ class Products():
             ErrorLogger().logError(message)
             return jsonify(message)  
         
-    
     def get_phone_model_details(self, user):
         
         request_data = request.get_json()
@@ -193,6 +192,14 @@ class Products():
                 }
                          
                 return trans
+            
+            else:
+                message = {'status':201,
+                            'error':'sp_a04',
+                            'description':'Failed to fetch mobile phone model!'
+                        }   
+                return jsonify(message), 201 
+                
 
         #Error handling
         except Exception as error:
