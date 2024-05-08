@@ -116,7 +116,7 @@ class DistributionCenter():
                         "region": center['region'],
                         "notes": center['notes'],
                         "created_date": center['created_date'],
-                        "created_by": center['created_by']
+                        "created_by_id": center['created_by']
                     }
                     response_array.append(response)
             
@@ -190,7 +190,7 @@ class DistributionCenter():
                     "region": center['region'],
                     "notes": center['notes'],
                     "created_date": center['created_date'],
-                    "created_by": center['created_by']
+                    "created_by_id": center['created_by']
                 }
                 
                 return response

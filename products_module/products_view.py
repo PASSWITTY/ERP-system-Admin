@@ -114,7 +114,7 @@ class Products():
                         "battery": phone_model['battery'],
                         "image_path": phone_model['image_path'],
                         "date_created": phone_model['date_created'],
-                        "created_by": phone_model['created_by']
+                        "created_by_id": phone_model['created_by']
                     }
                     mobile_phone_models.append(response)
             
@@ -188,7 +188,7 @@ class Products():
                     "battery": phone_model['battery'],
                     "image_path": phone_model['image_path'],
                     "date_created": phone_model['date_created'],
-                    "created_by": created_by_name             
+                    "created_by_id": created_by_name             
                 }
                          
                 return trans

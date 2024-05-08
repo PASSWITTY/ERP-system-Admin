@@ -9,7 +9,7 @@ user_bp = Blueprint("user_blueprint", __name__)
 def login():
     return User().login()
 
-@user_bp.route("/update_password", methods=["POST"])
+@user_bp.route("/update-password", methods=["POST"])
 def change_password():
     return User().change_password()
 
@@ -18,3 +18,28 @@ def change_password():
 def renew_token():
     user = current_user
     return User().renew_token()
+
+@user_bp.route("/list-user-categories", methods=["POST"])
+@jwt_required()
+def list_user_categories():
+    user = current_user
+    return User().list_user_categories(user)
+
+
+@user_bp.route("/create-user", methods=["POST"])
+@jwt_required()
+def create_user():
+    user = current_user
+    return User().create_user(user)
+
+@user_bp.route("/list-users", methods=["POST"])
+@jwt_required()
+def list_users():
+    user = current_user
+    return User().list_users(user)
+
+@user_bp.route("/get-user-details", methods=["POST"])
+@jwt_required()
+def get_user_details():
+    user = current_user
+    return User().get_user_details(user)

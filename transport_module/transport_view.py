@@ -42,7 +42,7 @@ class Transport():
                         "id": transport_mode['id'],
                         "name": transport_mode['name'],
                         "created_date": transport_mode['created_date'],
-                        "created_by": transport_mode['created_by']
+                        "created_by_id": transport_mode['created_by']
                     }
                     response_array.append(response)
             

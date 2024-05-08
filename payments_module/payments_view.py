@@ -42,7 +42,7 @@ class Payments():
                         "id": payments_mode['id'],
                         "name": payments_mode['name'],
                         "created_date": payments_mode['created_date'],
-                        "created_by": payments_mode['created_by']
+                        "created_by_id": payments_mode['created_by']
                     }
                     response_array.append(response)
             
