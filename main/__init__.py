@@ -17,7 +17,6 @@ app = Flask(__name__)
 app.config['APP_URL'] = os.environ.get('APP_URL')
 app.config['DEBUG'] = os.environ.get('DEBUG')
 
-
 # App Configurations
 app.config['MYSQL_DATABASE_HOST'] = os.environ.get('MYSQL_DATABASE_HOST')
 app.config['MYSQL_DATABASE_USER'] = os.environ.get('MYSQL_DATABASE_USER')
@@ -38,7 +37,6 @@ app.config['SMS_SENDER_ID'] = os.environ.get('SMS_SENDER_ID')
 app.config['SMS_API_URL'] = os.environ.get('SMS_API_URL')
 
 
-
 jwt = JWTManager(app)
 CORS(app)
 
@@ -49,12 +47,15 @@ from user_module.user_url import user_bp
 from supplier_module.inventory_suppliers.inventory_supplier_url import inventory_supplier_bp
 from products_module.products_url import products_bp
 from inventory_module.distribution_centers_url import distribution_center_bp
-
+from transport_module.transport_url import transport_bp
+from payments_module.payments_url import payments_bp
 
 app.register_blueprint(user_bp, url_prefix="/api/v1/users") 
 app.register_blueprint(inventory_supplier_bp, url_prefix="/api/v1/suppliers")
 app.register_blueprint(products_bp, url_prefix="/api/v1/products")
-app.register_blueprint(distribution_center_bp, url_prefix="/api/v1/distribution-centers")
+app.register_blueprint(distribution_center_bp, url_prefix="/api/v1/distribution-centers") 
+app.register_blueprint(transport_bp, url_prefix="/api/v1/transport")
+app.register_blueprint(payments_bp, url_prefix="/api/v1/payments")
 
 # Upload folder
 app.config['UPLOAD_FOLDER'] = 'static/files'
