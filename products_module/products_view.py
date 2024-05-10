@@ -120,7 +120,7 @@ class Products():
             
             
                 message = {'status':200,
-                            'response':response, 
+                            'response':mobile_phone_models, 
                             'description':'Mobile phone model records were fetched successfully!'
                         }   
                 return jsonify(message), 200

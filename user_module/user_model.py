@@ -481,3 +481,62 @@ class User():
                        'description':'Failed to fetch user record from database.' + format(error)}
             ErrorLogger().logError(message),
             return jsonify(message), 501
+        
+
+    def approve_user(self, user):
+        request_data = request.get_json() 
+               
+        if request_data == None:
+            message = {'status':402,
+                       'error':'sp_a06',
+                       'description':'Request data is missing some details!'}
+            ErrorLogger().logError(message)
+            return jsonify(message)
+
+        id = request_data["id"]
+
+        approved_by = user["id"]
+        dateapproved = Localtime().gettime()
+        
+        try:
+            cur = mysql.get_db().cursor()
+        except:
+            message = {'status':500,
+                       'error':'sp_a07',
+                       'description':"Couldn't connect to the Database!"}
+            ErrorLogger().logError(message)
+            return jsonify(message)
+
+        try:  
+            #update user status
+            cur.execute("""UPDATE users set status=1 WHERE id = %s """, (id))
+            mysql.get_db().commit()       
+            rowcount = cur.rowcount
+            if rowcount:  
+                date_approved = Localtime().gettime()
+             
+                signed_id = request_data["id"]
+                
+                cur.execute("""UPDATE user_details set date_approved=%s, approved_by =%s WHERE user_id = %s """, (date_approved, signed_id,  id))
+                mysql.get_db().commit()    
+
+                trans_message = {"description":"User was approved successfully!",
+                                "status":200}
+                return trans_message 
+                
+            else:
+                message = {'status':500,
+                            'error':'sp_a20',
+                            'description':'Distribution center was not approved!'}
+                ErrorLogger().logError(message)
+                return jsonify(message)
+                    
+        #Error handling
+        except Exception as error:
+            message = {'status':501,
+                       'error':'sp_a09',
+                       'description':'Failed to approve distribution center record. Error description ' + format(error)}
+            ErrorLogger().logError(message)
+            return jsonify(message)  
+        finally:
+            cur.close()

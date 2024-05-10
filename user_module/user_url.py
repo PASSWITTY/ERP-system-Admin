@@ -43,3 +43,10 @@ def list_users():
 def get_user_details():
     user = current_user
     return User().get_user_details(user)
+
+
+@user_bp.route("/approve-user", methods=["POST"])
+@jwt_required()
+def approve_user():
+    user = current_user
+    return User().approve_user(user)

@@ -30,6 +30,7 @@ class Suppliers():
         tax_id = validated_data["tax_id"]
         company_email = validated_data["company_email"]
         website = validated_data["company_website"]
+        contact_persons = json.dumps(validated_data["contact_persons"])
         
         # Open A connection to the database
         try:
@@ -44,14 +45,95 @@ class Suppliers():
         
         try:
             status = 2 #pending approval
-            date_created = Localtime().gettime()
+            created_date = Localtime().gettime()
             created_by = user['id']
 
             #store supplier details request
-            cur.execute("""INSERT INTO suppliers (business_name, trading_name, company_mobile_number, company_alternative_mobile_number, company_email, website, address, postal_code, country, city, date_created, created_by, status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""", 
-                                                 (business_name, trading_name, company_mobile_number, company_alternative_mobile_number, company_email, website, address, postal_code, country, city, date_created, created_by, status))
+            cur.execute("""INSERT INTO suppliers (business_name, trading_name, company_mobile_number, company_alternative_mobile_number, company_email, website, address, postal_code, country, city, created_date, created_by, status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""", 
+                                                 (business_name, trading_name, company_mobile_number, company_alternative_mobile_number, company_email, website, address, postal_code, country, city, created_date, created_by, status))
             mysql.get_db().commit()
-            cur.close()
+            
+            rowcount = cur.rowcount
+            if rowcount: 
+                supplier_id = cur.lastrowid
+                
+                supplier_contact_persons = json.loads(contact_persons)                
+                for contact_person in supplier_contact_persons:
+
+                    title = contact_person["title"]
+                    first_name = contact_person["first_name"]
+                    last_name = contact_person["last_name"]
+                    mobile_number = contact_person["mobile_number"]
+                    alternative_mobile_number = contact_person["alternative_mobile_number"]
+                    email = contact_person["email"]
+                    
+                    #save contact details
+                    cur.execute("""INSERT INTO supplier_contact (supplier_id, title, first_name, last_name, mobile_number, alternative_mobile_number, email, created_date, created_by, status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""", 
+                                                                (supplier_id, title, first_name, last_name, mobile_number, alternative_mobile_number, email, created_date, created_by, status))
+                    mysql.get_db().commit()
+                    
+                    
+                #Create supplier payable account
+                accountName = business_name
+                type_Id = 9 #payable account type
+                categoryId = 14 #account category 
+                sub_category = 0
+                mainaccount = 0
+                openingBalance = 0     
+                notes = ''
+                owner_id = supplier_id
+                entity_id = 0
+                description = ''
+                referenceNumber = ''
+                
+                account = {
+                    "name":accountName, 
+                    "accountType":type_Id, 
+                    "accountCategory":categoryId, 
+                    "accountSubCategory":sub_category,
+                    "main_account":mainaccount,
+                    "opening_balance":openingBalance, 
+                    "owner_id":owner_id, 
+                    "entity_id":entity_id, 
+                    "notes":notes, 
+                    "description":description, 
+                    "reference_number":referenceNumber,
+                    "user_id":created_by,
+                    "status":1}
+            
+                payable_account_res = Account().create_new_account(account)
+                    
+                #Create supplier prepayment account
+                accountName = business_name
+                type_Id = 4 #prepaid expenses account type
+                categoryId = 9 #prepaid expenses account category 
+                sub_category = 0
+                mainaccount = 0
+                openingBalance = 0     
+                notes = ''
+                owner_id = supplier_id
+                entity_id = 0
+                description = ''
+                referenceNumber = ''
+                
+                account = {
+                    "name":accountName, 
+                    "accountType":type_Id, 
+                    "accountCategory":categoryId, 
+                    "accountSubCategory":sub_category,
+                    "main_account":mainaccount,
+                    "opening_balance":openingBalance, 
+                    "owner_id":owner_id, 
+                    "entity_id":entity_id, 
+                    "notes":notes, 
+                    "description":description, 
+                    "reference_number":referenceNumber,
+                    "user_id":created_by,
+                    "status":1}
+            
+                prepaid_account_res = Account().create_new_account(account)
+                    
+                cur.close()
             
             message = {"description":"Supplier was created successfully",
                        "status":200}
@@ -87,9 +169,9 @@ class Suppliers():
             return message
                 
         try:
-            id = int(request_data["id"])
+            status = int(request_data["status"])
         
-            cur.execute("""SELECT * from suppliers WHERE status= %s ORDER BY date_created DESC""", [id])
+            cur.execute("""SELECT * from suppliers WHERE status= %s ORDER BY date_created DESC""", [status])
             results = cur.fetchall()    
             if results:
                 trans = []
@@ -140,44 +222,107 @@ class Suppliers():
             ErrorLogger().logError(message)
             return jsonify(message)  
 
-    # def get_inventory_supplier_details(self, user):
+    def get_inventory_supplier_details(self, user):
         
-    #     request_data = request.get_json()
+        request_data = request.get_json()
 
-    #     if request_data == None:
-    #         message = {'status':402,
-    #                    'description':'Request data is missing some details!'}
-    #         return jsonify(message)
+        if request_data == None:
+            message = {'status':402,
+                       'description':'Request data is missing some details!'}
+            return jsonify(message)
 
-    #     id = request_data["id"]
+        id = request_data["id"]
 
-    #     try:
-    #         cur = mysql.get_db().cursor()
-    #     except:
-    #         message = {'status':500,
-    #                    'description':"Couldn't connect to the Database!"}
-    #         return jsonify(message)
+        try:
+            cur = mysql.get_db().cursor()
+        except:
+            message = {'status':500,
+                       'description':"Couldn't connect to the Database!"}
+            return jsonify(message)
         
-    #     try:
-    #         details = {
-    #                 "id":id
-    #             }
-            
-    #         api_res = Supplier().supplier_details(details)
-    #         message = {'status':200,
-    #                    'response':api_res,
-    #                    'description':'Supplier records were found!'
-    #                     }   
-    #         return jsonify(message) 
+        try:
+            cur.execute("""SELECT * FROM suppliers WHERE id = %s""", (id))
+            supplier = cur.fetchone()
+            if supplier:  
+                created_by_id = supplier['created_by']
+                supplier_id = supplier['id']
+                
+                cur.execute("""SELECT first_name, last_name FROM user_details WHERE user_id= %s""", (created_by_id))
+                userdetails = cur.fetchone()
+                if userdetails:
+                    created_by = userdetails['first_name'] + " " + userdetails['last_name']
+                else:
+                    created_by = ''
+                
+                contact_persons = []
+                cur.execute("""SELECT * FROM supplier_contact WHERE supplier_id = %s""", (supplier_id))
+                supplier_contacts = cur.fetchall()
+                if supplier_contacts:  
+                    for supplier_contact in supplier_contacts:
+                        title = supplier_contact['title']
+                        first_name = supplier_contact['first_name']
+                        last_name = supplier_contact['last_name']
+                        mobile_number = supplier_contact['mobile_number']
+                        alternative_mobile_number = supplier_contact['alternative_mobile_number']
+                        email = supplier_contact['email']
+                        status = supplier_contact['status']
+                        created_date = supplier_contact['created_date']
+                        if int(status) ==1:
+                            this_status = 'Active',
+                        elif int(status) ==2:
+                            this_status = 'Pending Approval',
+                        else:
+                            this_status = 'Not Active'
+                        
+                        response = {
+                            "title":title,
+                            "first_name":first_name,
+                            "last_name":last_name,
+                            "mobile_number":mobile_number,
+                            "alternative_mobile_number":alternative_mobile_number,
+                            "email":email,
+                            "created_date":created_date,
+                            "status":this_status
+                            
+                        }
+                        contact_persons.append(response)
+                        
+
+                trans = {
+                    "id": supplier['id'],
+                    "business_name": supplier['business_name'],          
+                    "trading_name": supplier['mobile_number'],
+                    "company_mobile_number": supplier['company_mobile_number'],
+                    "company_alternative_mobile_number": supplier['company_alternative_mobile_number'],
+                    "company_email": supplier['company_email'],
+                    "tax_id": supplier['tax_id'],
+                    "registration_number": supplier['registration_number'],
+                    "website": supplier['website'],
+                    "country": supplier['country'],
+                    "city": supplier['city'],
+                    "address": supplier['address'],
+                    "postal_code": supplier['postal_code'],
+                    "created_date": supplier['created_date'],
+                    "createdby": created_by,                  
+                    "created_by_id": created_by_id,
+                    "contact_persons":contact_persons               
+                }
+                
+                #The response object
+                         
+                return trans
+            else:
+                message = 'No record was found!'
+                return message 
                          
     
-    #     #Error handling
-    #     except Exception as error:
-    #         message = {'status':501,
-    #                    'description':'Failed to retrieve record from database.'+ format(error)}
-    #         return jsonify(message)  
-    #     finally:
-    #         cur.close()
+        #Error handling
+        except Exception as error:
+            message = {'status':501,
+                       'description':'Failed to retrieve record from database.'+ format(error)}
+            return jsonify(message)  
+        finally:
+            cur.close()
             
     # def approve_inventory_supplier(self, user):
     #     request_data = request.get_json()        
