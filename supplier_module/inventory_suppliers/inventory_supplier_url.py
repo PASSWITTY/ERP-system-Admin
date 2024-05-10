@@ -23,11 +23,11 @@ def get_inventory_supplier_details():
     user = current_user
     return Suppliers().get_inventory_supplier_details(user)
 
-# @inventory_supplier_bp.route("/approve-inventory-supplier", methods=["POST"])
-# @jwt_required()
-# def approve_inventory_supplier():
-#     user = current_user
-#     return Suppliers().approve_inventory_supplier(user)
+@inventory_supplier_bp.route("/approve-inventory-supplier", methods=["POST"])
+@jwt_required()
+def approve_inventory_supplier():
+    user = current_user
+    return Suppliers().approve_inventory_supplier(user)
 
 # @inventory_supplier_bp.route("/inventory-item-purchase", methods=["POST"])
 # @jwt_required()

@@ -624,30 +624,30 @@ class Accounts():
                 #     mysql.get_db().commit() 
                 #     account_number = str(cur.lastrowid)
 
-            elif typeId ==21:#generate expenses account
-                pass
-                # cur.execute("""SELECT number FROM generate_nonposting_account_numbers ORDER BY number DESC LIMIT 1""")
-                # acc_num = cur.fetchone()
-                # if acc_num == None:
+            elif typeId ==21:#generate Cost of Goods Sold account
+                
+                cur.execute("""SELECT number FROM generate_costof_goods_sold_account_numbers ORDER BY number DESC LIMIT 1""")
+                acc_num = cur.fetchone()
+                if acc_num == None:
 
-                #     cur.execute("""SELECT start FROM accounts_series where id=19""")
-                #     acc_series= cur.fetchone()
-                #     if acc_series:
-                #         account_number = acc_series["start"]
+                    cur.execute("""SELECT start FROM accounts_series where id=21""")
+                    acc_series= cur.fetchone()
+                    if acc_series:
+                        account_number = acc_series["start"]
 
-                #     date_created = Localtime().gettime()
-                #     cur.execute("""INSERT INTO generate_nonposting_account_numbers (number, date_created) VALUES (%s, %s)""",(account_number, date_created))
-                #     mysql.get_db().commit() 
-                #     account_number = str(cur.lastrowid)
-                #     cur.close()
-                # else:
-                #     account_number = int(acc_num["number"]) + 1
-                #     date_created = Localtime().gettime()
-                #     cur.execute("""INSERT INTO generate_nonposting_account_numbers (number, date_created) VALUES (%s, %s)""",(account_number, date_created))
-                #     mysql.get_db().commit() 
-                #     account_number = str(cur.lastrowid)
+                    date_created = Localtime().gettime()
+                    cur.execute("""INSERT INTO generate_costof_goods_sold_account_numbers (number, date_created) VALUES (%s, %s)""",(account_number, date_created))
+                    mysql.get_db().commit() 
+                    account_number = str(cur.lastrowid)
+                    cur.close()
+                else:
+                    account_number = int(acc_num["number"]) + 1
+                    date_created = Localtime().gettime()
+                    cur.execute("""INSERT INTO generate_costof_goods_sold_account_numbers (number, date_created) VALUES (%s, %s)""",(account_number, date_created))
+                    mysql.get_db().commit() 
+                    account_number = str(cur.lastrowid)
 
-            elif typeId ==22:#generate other expenses account
+            elif typeId ==22:#generate expenses account
                 pass
                 # cur.execute("""SELECT number FROM generate_nonposting_account_numbers ORDER BY number DESC LIMIT 1""")
                 # acc_num = cur.fetchone()
@@ -670,7 +670,7 @@ class Accounts():
                 #     mysql.get_db().commit() 
                 #     account_number = str(cur.lastrowid)
             
-            elif typeId ==23:#generate other income account
+            elif typeId ==23:#generate other Expenses account
                 pass
                 # cur.execute("""SELECT number FROM generate_nonposting_account_numbers ORDER BY number DESC LIMIT 1""")
                 # acc_num = cur.fetchone()
@@ -693,7 +693,30 @@ class Accounts():
                 #     mysql.get_db().commit() 
                 #     account_number = str(cur.lastrowid)
 
-            elif typeId ==24:#generate tax expenses account
+            elif typeId ==24:#generate Other Income account
+                pass
+                # cur.execute("""SELECT number FROM generate_nonposting_account_numbers ORDER BY number DESC LIMIT 1""")
+                # acc_num = cur.fetchone()
+                # if acc_num == None:
+
+                #     cur.execute("""SELECT start FROM accounts_series where id=19""")
+                #     acc_series= cur.fetchone()
+                #     if acc_series:
+                #         account_number = acc_series["start"]
+
+                #     date_created = Localtime().gettime()
+                #     cur.execute("""INSERT INTO generate_nonposting_account_numbers (number, date_created) VALUES (%s, %s)""",(account_number, date_created))
+                #     mysql.get_db().commit() 
+                #     account_number = str(cur.lastrowid)
+                #     cur.close()
+                # else:
+                #     account_number = int(acc_num["number"]) + 1
+                #     date_created = Localtime().gettime()
+                #     cur.execute("""INSERT INTO generate_nonposting_account_numbers (number, date_created) VALUES (%s, %s)""",(account_number, date_created))
+                #     mysql.get_db().commit() 
+                #     account_number = str(cur.lastrowid)
+                
+            elif typeId ==25:#generate Tax Expense account
                 pass
                 # cur.execute("""SELECT number FROM generate_nonposting_account_numbers ORDER BY number DESC LIMIT 1""")
                 # acc_num = cur.fetchone()

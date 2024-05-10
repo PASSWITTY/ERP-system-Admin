@@ -234,11 +234,79 @@ class Products():
             return jsonify(message)
 
         try:  
+            cur.execute("""SELECT name, created_by FROM product_mobile_phones_models WHERE status =2 AND id = %s""", [id])
+            phonemodel = cur.fetchone()
+            if phonemodel:
+                model_name = phonemodel["name"]
+                created_by = phonemodel["created_by"]
+                
             #update phone model status
             cur.execute("""UPDATE product_mobile_phones_models set status=1, date_approved = %s, approved_by = %s WHERE id = %s """, ([dateapproved, approved_by, id]))
             mysql.get_db().commit()       
             rowcount = cur.rowcount
-            if rowcount:     
+            if rowcount:   
+                
+                #Create model stock account
+                accountName = model_name
+                type_Id = 2 #Inventory account type
+                categoryId = 5 #goods category 
+                sub_category = 0
+                mainaccount = 0
+                openingBalance = 0     
+                notes = ''
+                owner_id = id
+                entity_id = 0
+                description = ''
+                referenceNumber = ''
+                
+                account = {
+                    "name":accountName, 
+                    "accountType":type_Id, 
+                    "accountCategory":categoryId, 
+                    "accountSubCategory":sub_category,
+                    "main_account":mainaccount,
+                    "opening_balance":openingBalance, 
+                    "owner_id":owner_id, 
+                    "entity_id":entity_id, 
+                    "notes":notes, 
+                    "description":description, 
+                    "reference_number":referenceNumber,
+                    "user_id":created_by,
+                    "status":1}
+            
+                stock_account_res = Account().create_new_account(account)  
+                
+                
+                #Create model cost of goods sold account
+                accountName = model_name
+                type_Id = 21 #Cost of goods sold account type
+                categoryId = 24 #Cost of good sold category 
+                sub_category = 0
+                mainaccount = 0
+                openingBalance = 0     
+                notes = ''
+                owner_id = id
+                entity_id = 0
+                description = ''
+                referenceNumber = ''
+                
+                account = {
+                    "name":accountName, 
+                    "accountType":type_Id, 
+                    "accountCategory":categoryId, 
+                    "accountSubCategory":sub_category,
+                    "main_account":mainaccount,
+                    "opening_balance":openingBalance, 
+                    "owner_id":owner_id, 
+                    "entity_id":entity_id, 
+                    "notes":notes, 
+                    "description":description, 
+                    "reference_number":referenceNumber,
+                    "user_id":created_by,
+                    "status":1}
+            
+                cog_account_res = Account().create_new_account(account)
+                
 
                 trans_message = {"description":"Mobile phone model was approved successfully!",
                                 "status":200}

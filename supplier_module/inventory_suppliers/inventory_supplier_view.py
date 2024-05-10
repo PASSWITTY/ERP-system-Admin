@@ -72,67 +72,6 @@ class Suppliers():
                                                                 (supplier_id, title, first_name, last_name, mobile_number, alternative_mobile_number, email, created_date, created_by, status))
                     mysql.get_db().commit()
                     
-                    
-                #Create supplier payable account
-                accountName = business_name
-                type_Id = 9 #payable account type
-                categoryId = 14 #account category 
-                sub_category = 0
-                mainaccount = 0
-                openingBalance = 0     
-                notes = ''
-                owner_id = supplier_id
-                entity_id = 0
-                description = ''
-                referenceNumber = ''
-                
-                account = {
-                    "name":accountName, 
-                    "accountType":type_Id, 
-                    "accountCategory":categoryId, 
-                    "accountSubCategory":sub_category,
-                    "main_account":mainaccount,
-                    "opening_balance":openingBalance, 
-                    "owner_id":owner_id, 
-                    "entity_id":entity_id, 
-                    "notes":notes, 
-                    "description":description, 
-                    "reference_number":referenceNumber,
-                    "user_id":created_by,
-                    "status":1}
-            
-                payable_account_res = Account().create_new_account(account)
-                    
-                #Create supplier prepayment account
-                accountName = business_name
-                type_Id = 4 #prepaid expenses account type
-                categoryId = 9 #prepaid expenses account category 
-                sub_category = 0
-                mainaccount = 0
-                openingBalance = 0     
-                notes = ''
-                owner_id = supplier_id
-                entity_id = 0
-                description = ''
-                referenceNumber = ''
-                
-                account = {
-                    "name":accountName, 
-                    "accountType":type_Id, 
-                    "accountCategory":categoryId, 
-                    "accountSubCategory":sub_category,
-                    "main_account":mainaccount,
-                    "opening_balance":openingBalance, 
-                    "owner_id":owner_id, 
-                    "entity_id":entity_id, 
-                    "notes":notes, 
-                    "description":description, 
-                    "reference_number":referenceNumber,
-                    "user_id":created_by,
-                    "status":1}
-            
-                prepaid_account_res = Account().create_new_account(account)
-                    
                 cur.close()
             
             message = {"description":"Supplier was created successfully",
@@ -324,100 +263,123 @@ class Suppliers():
         finally:
             cur.close()
             
-    # def approve_inventory_supplier(self, user):
-    #     request_data = request.get_json()        
-    #     if request_data == None:
-    #         message = {'status':402,
-    #                    'error':'sp_a06',
-    #                    'description':'Request data is missing some details!'}
-    #         ErrorLogger().logError(message)
-    #         return jsonify(message)
+    def approve_inventory_supplier(self, user):
+        request_data = request.get_json()        
+        if request_data == None:
+            message = {'status':402,
+                       'error':'sp_a06',
+                       'description':'Request data is missing some details!'}
+            ErrorLogger().logError(message)
+            return jsonify(message)
 
-    #     id = request_data["id"]
+        id = request_data["id"]
         
-    #     try:
-    #         cur = mysql.get_db().cursor()
-    #     except:
-    #         message = {'status':500,
-    #                    'error':'sp_a07',
-    #                    'description':"Couldn't connect to the Database!"}
-    #         ErrorLogger().logError(message)
-    #         return jsonify(message)
+        try:
+            cur = mysql.get_db().cursor()
+        except:
+            message = {'status':500,
+                       'error':'sp_a07',
+                       'description':"Couldn't connect to the Database!"}
+            ErrorLogger().logError(message)
+            return jsonify(message)
 
-    #     try:  
-    #         user_id = user['id']             
-    #         cur.execute("""SELECT * FROM suppliers WHERE status =0 AND id = %s""", [id])
-    #         supp = cur.fetchone()
-    #         if supp:
-
-    #             #Create supplier payable account
-    #             accountName = supp["name"]
-    #             type_Id = 8
-    #             categoryId = 10
-    #             sub_category = 0
-    #             mainaccount = 0
-    #             openingBalance = 0     
-    #             notes = ''
-    #             owner_id = id
-    #             entity_id = 0
-    #             description = ''
-    #             referenceNumber = ''
+        try:  
+            user_id = user['id']             
+            cur.execute("""SELECT business_name, created_by FROM suppliers WHERE status =2 AND id = %s""", [id])
+            supplier = cur.fetchone()
+            if supplier:
+                business_name = supplier["business_name"]
+                created_by = supplier["created_by"]
                 
-    #             account = {
-    #                    "name":accountName, 
-    #                    "accountType":type_Id, 
-    #                    "accountCategory":categoryId, 
-    #                    "accountSubCategory":sub_category,
-    #                    "main_account":mainaccount,
-    #                    "opening_balance":openingBalance, 
-    #                    "owner_id":owner_id, 
-    #                    "entity_id":entity_id, 
-    #                    "notes":notes, 
-    #                    "description":description, 
-    #                    "reference_number":referenceNumber,
-    #                    "user_id":user_id,
-    #                    "status":1}
-            
-    #             account_res = Account().create_new_account(account)
+                approved_date = Localtime().gettime()
+               
+                cur.execute("""UPDATE suppliers set status=1, approved_date = %s, approved_by = %s WHERE id = %s """, (approved_date, user_id, id))
+                mysql.get_db().commit()
+                rowcount = cur.rowcount
+                if rowcount:     
                 
-
-    #             details = {
-    #                 "id":request_data["id"],
-    #                 "user_id":user["id"]
-    #             }
-    #             supplier_res = Supplier().supplier_approve(details)
-    #             if (supplier_res["status"] == 200):
+                    #Create supplier payable account
+                    accountName = business_name
+                    type_Id = 9 #payable account type
+                    categoryId = 14 #account category 
+                    sub_category = 0
+                    mainaccount = 0
+                    openingBalance = 0     
+                    notes = ''
+                    owner_id = id
+                    entity_id = 0
+                    description = ''
+                    referenceNumber = ''
                     
-    #                 api_response = {'status':200,
-    #                                 'description':'Task was completed successfully!'}
-
-    #                 return jsonify(api_response)
+                    account = {
+                        "name":accountName, 
+                        "accountType":type_Id, 
+                        "accountCategory":categoryId, 
+                        "accountSubCategory":sub_category,
+                        "main_account":mainaccount,
+                        "opening_balance":openingBalance, 
+                        "owner_id":owner_id, 
+                        "entity_id":entity_id, 
+                        "notes":notes, 
+                        "description":description, 
+                        "reference_number":referenceNumber,
+                        "user_id":created_by,
+                        "status":1}
                 
-    #             else:
-    #                 message = {'status':500,
-    #                            'error':'sp_a20',
-    #                            'description':'Task was not completed successfully!'}
-    #                 ErrorLogger().logError(message)
-    #                 return jsonify(message)
+                    payable_account_res = Account().create_new_account(account) 
                     
+                    
+                    #Create supplier prepayment account
+                    accountName = business_name
+                    type_Id = 4 #prepaid expenses account type
+                    categoryId = 9 #prepaid expenses account category 
+                    sub_category = 0
+                    mainaccount = 0
+                    openingBalance = 0     
+                    notes = ''
+                    owner_id = id
+                    entity_id = 0
+                    description = ''
+                    referenceNumber = ''
+                    
+                    account = {
+                        "name":accountName, 
+                        "accountType":type_Id, 
+                        "accountCategory":categoryId, 
+                        "accountSubCategory":sub_category,
+                        "main_account":mainaccount,
+                        "opening_balance":openingBalance, 
+                        "owner_id":owner_id, 
+                        "entity_id":entity_id, 
+                        "notes":notes, 
+                        "description":description, 
+                        "reference_number":referenceNumber,
+                        "user_id":created_by,
+                        "status":1}
+                
+                    prepaid_account_res = Account().create_new_account(account)       
+
+                    trans_message = {"description":"Supplier was approved successfully!",
+                                    "status":200}
+                    return trans_message 
              
-    #         else:
-    #             message = {'status':500,
-    #                        'error':'sp_a08',
-    #                        'description':'Task was not completed successfully!'}
-    #             ErrorLogger().logError(message)
-    #             return jsonify(message)
+            else:
+                message = {'status':500,
+                           'error':'sp_a08',
+                           'description':'Task was not completed successfully!'}
+                ErrorLogger().logError(message)
+                return jsonify(message)
 
     
-    #     #Error handling
-    #     except Exception as error:
-    #         message = {'status':501,
-    #                    'error':'sp_a09',
-    #                    'description':'Failed to approve supplier record. Error description ' + format(error)}
-    #         ErrorLogger().logError(message)
-    #         return jsonify(message)  
-    #     finally:
-    #         cur.close()
+        #Error handling
+        except Exception as error:
+            message = {'status':501,
+                       'error':'sp_a09',
+                       'description':'Failed to approve supplier record. Error description ' + format(error)}
+            ErrorLogger().logError(message)
+            return jsonify(message)  
+        finally:
+            cur.close()
             
     # def inventory_item_purchase(self, user):
     #     #Get the request data 
