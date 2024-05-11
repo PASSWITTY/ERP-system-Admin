@@ -15,8 +15,8 @@ class UniqueNumber():
             return Response({"Couldn't connect to the Database"}, status=500)
     
         try:   
-            date_created = Localtime().gettime()
-            cur.execute("""INSERT INTO generate_global_id (date_created) VALUES (%s)""",(date_created))
+            created_date = Localtime().gettime()
+            cur.execute("""INSERT INTO generate_global_id (created_date) VALUES (%s)""",(created_date))
             mysql.get_db().commit() 
             
             int_var = cur.lastrowid
@@ -44,8 +44,8 @@ class UniqueNumber():
             return Response({"Couldn't connect to the Database"}, status=500)
     
         try:   
-            date_created = Localtime().gettime()
-            cur.execute("""INSERT INTO generate_account_id (date_created) VALUES (%s)""",(date_created))
+            created_date = Localtime().gettime()
+            cur.execute("""INSERT INTO generate_account_id (created_date) VALUES (%s)""",(created_date))
             mysql.get_db().commit() 
             
             int_var = cur.lastrowid
@@ -73,8 +73,8 @@ class UniqueNumber():
             return Response({"Couldn't connect to the Database"}, status=500)
     
         try:   
-            date_created = Localtime().gettime()
-            cur.execute("""INSERT INTO generate_bank_deposit_id (date_created) VALUES (%s)""",(date_created))
+            created_date = Localtime().gettime()
+            cur.execute("""INSERT INTO generate_bank_deposit_id (created_date) VALUES (%s)""",(created_date))
             mysql.get_db().commit() 
             
             int_var = cur.lastrowid
@@ -102,8 +102,8 @@ class UniqueNumber():
             return Response({"Couldn't connect to the Database"}, status=500)
     
         try:   
-            date_created = Localtime().gettime()
-            cur.execute("""INSERT INTO generate_demandnote_id (date_created) VALUES (%s)""",(date_created))
+            created_date = Localtime().gettime()
+            cur.execute("""INSERT INTO generate_demandnote_id (created_date) VALUES (%s)""",(created_date))
             mysql.get_db().commit() 
             
             int_var = cur.lastrowid
@@ -131,8 +131,8 @@ class UniqueNumber():
             return Response({"Couldn't connect to the Database"}, status=500)
     
         try:   
-            date_created = Localtime().gettime()
-            cur.execute("""INSERT INTO generate_subdemandnote_id (date_created) VALUES (%s)""",(date_created))
+            created_date = Localtime().gettime()
+            cur.execute("""INSERT INTO generate_subdemandnote_id (created_date) VALUES (%s)""",(created_date))
             mysql.get_db().commit() 
             
             int_var = cur.lastrowid
@@ -160,8 +160,8 @@ class UniqueNumber():
             return Response({"Couldn't connect to the Database"}, status=500)
     
         try:   
-            date_created = Localtime().gettime()
-            cur.execute("""INSERT INTO generate_rollover_fee_entry_id (date_created) VALUES (%s)""",(date_created))
+            created_date = Localtime().gettime()
+            cur.execute("""INSERT INTO generate_rollover_fee_entry_id (created_date) VALUES (%s)""",(created_date))
             mysql.get_db().commit() 
             
             int_var = cur.lastrowid
@@ -189,8 +189,8 @@ class UniqueNumber():
             return Response({"Couldn't connect to the Database"}, status=500)
     
         try:   
-            date_created = Localtime().gettime()
-            cur.execute("""INSERT INTO generate_reversed_rollover_fee_entry_id (date_created) VALUES (%s)""",(date_created))
+            created_date = Localtime().gettime()
+            cur.execute("""INSERT INTO generate_reversed_rollover_fee_entry_id (created_date) VALUES (%s)""",(created_date))
             mysql.get_db().commit() 
             
             int_var = cur.lastrowid
@@ -218,8 +218,8 @@ class UniqueNumber():
             return Response({"Couldn't connect to the Database"}, status=500)
     
         try:   
-            date_created = Localtime().gettime()
-            cur.execute("""INSERT INTO generate_loan_default_fines_entry_id (date_created) VALUES (%s)""",(date_created))
+            created_date = Localtime().gettime()
+            cur.execute("""INSERT INTO generate_loan_default_fines_entry_id (created_date) VALUES (%s)""",(created_date))
             mysql.get_db().commit() 
             
             int_var = cur.lastrowid
@@ -247,8 +247,8 @@ class UniqueNumber():
             return Response({"Couldn't connect to the Database"}, status=500)
     
         try:   
-            date_created = Localtime().gettime()
-            cur.execute("""INSERT INTO generate_lead_id (date_created) VALUES (%s)""",(date_created))
+            created_date = Localtime().gettime()
+            cur.execute("""INSERT INTO generate_lead_id (created_date) VALUES (%s)""",(created_date))
             mysql.get_db().commit() 
             
             int_var = cur.lastrowid
@@ -276,8 +276,8 @@ class UniqueNumber():
             return Response({"Couldn't connect to the Database"}, status=500)
     
         try:   
-            date_created = Localtime().gettime()
-            cur.execute("""INSERT INTO generate_staff_id (date_created) VALUES (%s)""",(date_created))
+            created_date = Localtime().gettime()
+            cur.execute("""INSERT INTO generate_staff_id (created_date) VALUES (%s)""",(created_date))
             mysql.get_db().commit() 
             
             int_var = cur.lastrowid
@@ -305,8 +305,8 @@ class UniqueNumber():
             return Response({"Couldn't connect to the Database"}, status=500)
     
         try:   
-            date_created = Localtime().gettime()
-            cur.execute("""INSERT INTO generate_user_id (date_created) VALUES (%s)""",(date_created))
+            created_date = Localtime().gettime()
+            cur.execute("""INSERT INTO generate_user_id (created_date) VALUES (%s)""",(created_date))
             mysql.get_db().commit() 
             
             int_var = cur.lastrowid
@@ -334,8 +334,8 @@ class UniqueNumber():
             return Response({"Couldn't connect to the Database"}, status=500)
     
         try:   
-            date_created = Localtime().gettime()
-            cur.execute("""INSERT INTO generate_customer_id (date_created) VALUES (%s)""",(date_created))
+            created_date = Localtime().gettime()
+            cur.execute("""INSERT INTO generate_customer_id (created_date) VALUES (%s)""",(created_date))
             mysql.get_db().commit() 
             
             int_var = cur.lastrowid
@@ -363,8 +363,8 @@ class UniqueNumber():
             return Response({"Couldn't connect to the Database"}, status=500)
     
         try:   
-            date_created = Localtime().gettime()
-            cur.execute("""INSERT INTO generate_ussd_login_item_id (date_created) VALUES (%s)""",(date_created))
+            created_date = Localtime().gettime()
+            cur.execute("""INSERT INTO generate_ussd_login_item_id (created_date) VALUES (%s)""",(created_date))
             mysql.get_db().commit() 
             
             int_var = cur.lastrowid
@@ -392,8 +392,8 @@ class UniqueNumber():
             return Response({"Couldn't connect to the Database"}, status=500)
     
         try:   
-            date_created = Localtime().gettime()
-            cur.execute("""INSERT INTO generate_mobileapp_login_id (date_created) VALUES (%s)""",(date_created))
+            created_date = Localtime().gettime()
+            cur.execute("""INSERT INTO generate_mobileapp_login_id (created_date) VALUES (%s)""",(created_date))
             mysql.get_db().commit() 
             
             int_var = cur.lastrowid
@@ -421,8 +421,8 @@ class UniqueNumber():
             return Response({"Couldn't connect to the Database"}, status=500)
     
         try:   
-            date_created = Localtime().gettime()
-            cur.execute("""INSERT INTO generate_spoofreport_id (date_created) VALUES (%s)""",(date_created))
+            created_date = Localtime().gettime()
+            cur.execute("""INSERT INTO generate_spoofreport_id (created_date) VALUES (%s)""",(created_date))
             mysql.get_db().commit() 
             
             int_var = cur.lastrowid
@@ -450,8 +450,8 @@ class UniqueNumber():
             return Response({"Couldn't connect to the Database"}, status=500)
     
         try:   
-            date_created = Localtime().gettime()
-            cur.execute("""INSERT INTO generate_group_id (date_created) VALUES (%s)""",(date_created))
+            created_date = Localtime().gettime()
+            cur.execute("""INSERT INTO generate_group_id (created_date) VALUES (%s)""",(created_date))
             mysql.get_db().commit() 
             
             int_var = cur.lastrowid
@@ -479,8 +479,8 @@ class UniqueNumber():
             return Response({"Couldn't connect to the Database"}, status=500)
     
         try:   
-            date_created = Localtime().gettime()
-            cur.execute("""INSERT INTO generate_group_customer_id (date_created) VALUES (%s)""",(date_created))
+            created_date = Localtime().gettime()
+            cur.execute("""INSERT INTO generate_group_customer_id (created_date) VALUES (%s)""",(created_date))
             mysql.get_db().commit() 
             
             int_var = cur.lastrowid
@@ -508,8 +508,8 @@ class UniqueNumber():
             return Response({"Couldn't connect to the Database"}, status=500)
     
         try:   
-            date_created = Localtime().gettime()
-            cur.execute("""INSERT INTO generate_product_id (date_created) VALUES (%s)""",(date_created))
+            created_date = Localtime().gettime()
+            cur.execute("""INSERT INTO generate_product_id (created_date) VALUES (%s)""",(created_date))
             mysql.get_db().commit() 
             
             int_var = cur.lastrowid
@@ -537,8 +537,8 @@ class UniqueNumber():
             return Response({"Couldn't connect to the Database"}, status=500)
     
         try:   
-            date_created = Localtime().gettime()
-            cur.execute("""INSERT INTO generate_product_period_id (date_created) VALUES (%s)""",(date_created))
+            created_date = Localtime().gettime()
+            cur.execute("""INSERT INTO generate_product_period_id (created_date) VALUES (%s)""",(created_date))
             mysql.get_db().commit() 
             
             int_var = cur.lastrowid
@@ -566,8 +566,8 @@ class UniqueNumber():
             return Response({"Couldn't connect to the Database"}, status=500)
     
         try:   
-            date_created = Localtime().gettime()
-            cur.execute("""INSERT INTO generate_loans_id (date_created) VALUES (%s)""",(date_created))
+            created_date = Localtime().gettime()
+            cur.execute("""INSERT INTO generate_loans_id (created_date) VALUES (%s)""",(created_date))
             mysql.get_db().commit() 
             
             int_var = cur.lastrowid
@@ -595,8 +595,8 @@ class UniqueNumber():
             return Response({"Couldn't connect to the Database"}, status=500)
     
         try:   
-            date_created = Localtime().gettime()
-            cur.execute("""INSERT INTO generate_loancharge_id (date_created) VALUES (%s)""",(date_created))
+            created_date = Localtime().gettime()
+            cur.execute("""INSERT INTO generate_loancharge_id (created_date) VALUES (%s)""",(created_date))
             mysql.get_db().commit() 
             
             int_var = cur.lastrowid
@@ -624,8 +624,8 @@ class UniqueNumber():
             return Response({"Couldn't connect to the Database"}, status=500)
     
         try:   
-            date_created = Localtime().gettime()
-            cur.execute("""INSERT INTO generate_defaultcharge_id (date_created) VALUES (%s)""",(date_created))
+            created_date = Localtime().gettime()
+            cur.execute("""INSERT INTO generate_defaultcharge_id (created_date) VALUES (%s)""",(created_date))
             mysql.get_db().commit() 
             
             int_var = cur.lastrowid
@@ -653,8 +653,8 @@ class UniqueNumber():
             return Response({"Couldn't connect to the Database"}, status=500)
     
         try:   
-            date_created = Localtime().gettime()
-            cur.execute("""INSERT INTO generate_loanrepayment_funds_id (date_created) VALUES (%s)""",(date_created))
+            created_date = Localtime().gettime()
+            cur.execute("""INSERT INTO generate_loanrepayment_funds_id (created_date) VALUES (%s)""",(created_date))
             mysql.get_db().commit() 
             
             int_var = cur.lastrowid
@@ -682,8 +682,8 @@ class UniqueNumber():
             return Response({"Couldn't connect to the Database"}, status=500)
     
         try:   
-            date_created = Localtime().gettime()
-            cur.execute("""INSERT INTO generate_defaulted_loancharge_id (date_created) VALUES (%s)""",(date_created))
+            created_date = Localtime().gettime()
+            cur.execute("""INSERT INTO generate_defaulted_loancharge_id (created_date) VALUES (%s)""",(created_date))
             mysql.get_db().commit() 
             
             int_var = cur.lastrowid
@@ -711,8 +711,8 @@ class UniqueNumber():
             return Response({"Couldn't connect to the Database"}, status=500)
     
         try:   
-            date_created = Localtime().gettime()
-            cur.execute("""INSERT INTO generate_product_adhoc_charge_id (date_created) VALUES (%s)""",(date_created))
+            created_date = Localtime().gettime()
+            cur.execute("""INSERT INTO generate_product_adhoc_charge_id (created_date) VALUES (%s)""",(created_date))
             mysql.get_db().commit() 
             
             int_var = cur.lastrowid
@@ -740,8 +740,8 @@ class UniqueNumber():
             return Response({"Couldn't connect to the Database"}, status=500)
     
         try:   
-            date_created = Localtime().gettime()
-            cur.execute("""INSERT INTO generate_loaninterest_id (date_created) VALUES (%s)""",(date_created))
+            created_date = Localtime().gettime()
+            cur.execute("""INSERT INTO generate_loaninterest_id (created_date) VALUES (%s)""",(created_date))
             mysql.get_db().commit() 
             
             int_var = cur.lastrowid
@@ -769,8 +769,8 @@ class UniqueNumber():
             return Response({"Couldn't connect to the Database"}, status=500)
     
         try:   
-            date_created = Localtime().gettime()
-            cur.execute("""INSERT INTO generate_loantax_id (date_created) VALUES (%s)""",(date_created))
+            created_date = Localtime().gettime()
+            cur.execute("""INSERT INTO generate_loantax_id (created_date) VALUES (%s)""",(created_date))
             mysql.get_db().commit() 
             
             int_var = cur.lastrowid
@@ -798,8 +798,8 @@ class UniqueNumber():
             return Response({"Couldn't connect to the Database"}, status=500)
     
         try:   
-            date_created = Localtime().gettime()
-            cur.execute("""INSERT INTO generate_loanrollover_id (date_created) VALUES (%s)""",(date_created))
+            created_date = Localtime().gettime()
+            cur.execute("""INSERT INTO generate_loanrollover_id (created_date) VALUES (%s)""",(created_date))
             mysql.get_db().commit() 
             
             int_var = cur.lastrowid
@@ -827,8 +827,8 @@ class UniqueNumber():
             return Response({"Couldn't connect to the Database"}, status=500)
     
         try:   
-            date_created = Localtime().gettime()
-            cur.execute("""INSERT INTO generate_cronjob_createdemandnote_id (date_created) VALUES (%s)""",(date_created))
+            created_date = Localtime().gettime()
+            cur.execute("""INSERT INTO generate_cronjob_createdemandnote_id (created_date) VALUES (%s)""",(created_date))
             mysql.get_db().commit() 
             
             int_var = cur.lastrowid
@@ -856,8 +856,8 @@ class UniqueNumber():
             return Response({"Couldn't connect to the Database"}, status=500)
     
         try:   
-            date_created = Localtime().gettime()
-            cur.execute("""INSERT INTO generate_rolloverfee_cronjob_createdemandnote_id (date_created) VALUES (%s)""",(date_created))
+            created_date = Localtime().gettime()
+            cur.execute("""INSERT INTO generate_rolloverfee_cronjob_createdemandnote_id (created_date) VALUES (%s)""",(created_date))
             mysql.get_db().commit() 
             
             int_var = cur.lastrowid
@@ -885,8 +885,8 @@ class UniqueNumber():
             return Response({"Couldn't connect to the Database"}, status=500)
     
         try:   
-            date_created = Localtime().gettime()
-            cur.execute("""INSERT INTO generate_defaultedloanfines_cronjob_createdemandnote_id (date_created) VALUES (%s)""",(date_created))
+            created_date = Localtime().gettime()
+            cur.execute("""INSERT INTO generate_defaultedloanfines_cronjob_createdemandnote_id (created_date) VALUES (%s)""",(created_date))
             mysql.get_db().commit() 
             
             int_var = cur.lastrowid
@@ -914,8 +914,8 @@ class UniqueNumber():
             return Response({"Couldn't connect to the Database"}, status=500)
     
         try:   
-            date_created = Localtime().gettime()
-            cur.execute("""INSERT INTO generate_okoa_airtime_requests_id (date_created) VALUES (%s)""",(date_created))
+            created_date = Localtime().gettime()
+            cur.execute("""INSERT INTO generate_okoa_airtime_requests_id (created_date) VALUES (%s)""",(created_date))
             mysql.get_db().commit() 
             
             int_var = cur.lastrowid
@@ -943,8 +943,8 @@ class UniqueNumber():
             return Response({"Couldn't connect to the Database"}, status=500)
     
         try:   
-            date_created = Localtime().gettime()
-            cur.execute("""INSERT INTO generate_transactions_id (date_created) VALUES (%s)""",(date_created))
+            created_date = Localtime().gettime()
+            cur.execute("""INSERT INTO generate_transactions_id (created_date) VALUES (%s)""",(created_date))
             mysql.get_db().commit() 
             
             int_var = cur.lastrowid
@@ -972,8 +972,8 @@ class UniqueNumber():
             return Response({"Couldn't connect to the Database"}, status=500)
     
         try:   
-            date_created = Localtime().gettime()
-            cur.execute("""INSERT INTO generate_transactiondebitcredit_id (date_created) VALUES (%s)""",(date_created))
+            created_date = Localtime().gettime()
+            cur.execute("""INSERT INTO generate_transactiondebitcredit_id (created_date) VALUES (%s)""",(created_date))
             mysql.get_db().commit() 
             
             int_var = cur.lastrowid
@@ -1001,8 +1001,8 @@ class UniqueNumber():
             return Response({"Couldn't connect to the Database"}, status=500)
     
         try:   
-            date_created = Localtime().gettime()
-            cur.execute("""INSERT INTO generate_supplier_id (date_created) VALUES (%s)""",(date_created))
+            created_date = Localtime().gettime()
+            cur.execute("""INSERT INTO generate_supplier_id (created_date) VALUES (%s)""",(created_date))
             mysql.get_db().commit() 
             
             int_var = cur.lastrowid
@@ -1030,8 +1030,8 @@ class UniqueNumber():
             return Response({"Couldn't connect to the Database"}, status=500)
     
         try:   
-            date_created = Localtime().gettime()
-            cur.execute("""INSERT INTO generate_inventoryitem_id (date_created) VALUES (%s)""",(date_created))
+            created_date = Localtime().gettime()
+            cur.execute("""INSERT INTO generate_inventoryitem_id (created_date) VALUES (%s)""",(created_date))
             mysql.get_db().commit() 
             
             int_var = cur.lastrowid
@@ -1059,8 +1059,8 @@ class UniqueNumber():
             return Response({"Couldn't connect to the Database"}, status=500)
     
         try:   
-            date_created = Localtime().gettime()
-            cur.execute("""INSERT INTO generate_sms_reference_id (date_created) VALUES (%s)""",(date_created))
+            created_date = Localtime().gettime()
+            cur.execute("""INSERT INTO generate_sms_reference_id (created_date) VALUES (%s)""",(created_date))
             mysql.get_db().commit() 
             
             int_var = cur.lastrowid
@@ -1088,8 +1088,8 @@ class UniqueNumber():
             return Response({"Couldn't connect to the Database"}, status=500)
     
         try:   
-            date_created = Localtime().gettime()
-            cur.execute("""INSERT INTO generate_airtime_stock_id (date_created) VALUES (%s)""",(date_created))
+            created_date = Localtime().gettime()
+            cur.execute("""INSERT INTO generate_airtime_stock_id (created_date) VALUES (%s)""",(created_date))
             mysql.get_db().commit() 
             
             int_var = cur.lastrowid
@@ -1117,8 +1117,8 @@ class UniqueNumber():
             return Response({"Couldn't connect to the Database"}, status=500)
     
         try:   
-            date_created = Localtime().gettime()
-            cur.execute("""INSERT INTO generate_mpesab2c_request_id (date_created) VALUES (%s)""",(date_created))
+            created_date = Localtime().gettime()
+            cur.execute("""INSERT INTO generate_mpesab2c_request_id (created_date) VALUES (%s)""",(created_date))
             mysql.get_db().commit() 
             
             int_var = cur.lastrowid
@@ -1146,8 +1146,8 @@ class UniqueNumber():
             return Response({"Couldn't connect to the Database"}, status=500)
     
         try:   
-            date_created = Localtime().gettime()
-            cur.execute("""INSERT INTO generate_mpesac2b_request_id (date_created) VALUES (%s)""",(date_created))
+            created_date = Localtime().gettime()
+            cur.execute("""INSERT INTO generate_mpesac2b_request_id (created_date) VALUES (%s)""",(created_date))
             mysql.get_db().commit() 
             
             int_var = cur.lastrowid
@@ -1175,8 +1175,8 @@ class UniqueNumber():
             return Response({"Couldn't connect to the Database"}, status=500)
     
         try:   
-            date_created = Localtime().gettime()
-            cur.execute("""INSERT INTO generate_mpesac2b_till_request_id (date_created) VALUES (%s)""",(date_created))
+            created_date = Localtime().gettime()
+            cur.execute("""INSERT INTO generate_mpesac2b_till_request_id (created_date) VALUES (%s)""",(created_date))
             mysql.get_db().commit() 
             
             int_var = cur.lastrowid
@@ -1204,8 +1204,8 @@ class UniqueNumber():
             return Response({"Couldn't connect to the Database"}, status=500)
     
         try:   
-            date_created = Localtime().gettime()
-            cur.execute("""INSERT INTO generate_mpesac2b_paybill_request_id (date_created) VALUES (%s)""",(date_created))
+            created_date = Localtime().gettime()
+            cur.execute("""INSERT INTO generate_mpesac2b_paybill_request_id (created_date) VALUES (%s)""",(created_date))
             mysql.get_db().commit() 
             
             int_var = cur.lastrowid
@@ -1233,8 +1233,8 @@ class UniqueNumber():
             return Response({"Couldn't connect to the Database"}, status=500)
     
         try:   
-            date_created = Localtime().gettime()
-            cur.execute("""INSERT INTO generate_mpesastk_request_id (date_created) VALUES (%s)""",(date_created))
+            created_date = Localtime().gettime()
+            cur.execute("""INSERT INTO generate_mpesastk_request_id (created_date) VALUES (%s)""",(created_date))
             mysql.get_db().commit() 
             
             int_var = cur.lastrowid
@@ -1262,8 +1262,8 @@ class UniqueNumber():
             return Response({"Couldn't connect to the Database"}, status=500)
     
         try:   
-            date_created = Localtime().gettime()
-            cur.execute("""INSERT INTO generate_mpesastk_paybill_request_id (date_created) VALUES (%s)""",(date_created))
+            created_date = Localtime().gettime()
+            cur.execute("""INSERT INTO generate_mpesastk_paybill_request_id (created_date) VALUES (%s)""",(created_date))
             mysql.get_db().commit() 
             
             int_var = cur.lastrowid
@@ -1291,8 +1291,8 @@ class UniqueNumber():
             return Response({"Couldn't connect to the Database"}, status=500)
     
         try:   
-            date_created = Localtime().gettime()
-            cur.execute("""INSERT INTO generate_mpesaairtime_stk_request_id (date_created) VALUES (%s)""",(date_created))
+            created_date = Localtime().gettime()
+            cur.execute("""INSERT INTO generate_mpesaairtime_stk_request_id (created_date) VALUES (%s)""",(created_date))
             mysql.get_db().commit() 
             
             int_var = cur.lastrowid
@@ -1320,8 +1320,8 @@ class UniqueNumber():
             return Response({"Couldn't connect to the Database"}, status=500)
     
         try:   
-            date_created = Localtime().gettime()
-            cur.execute("""INSERT INTO generate_mpesa_transaction_query_id (date_created) VALUES (%s)""",(date_created))
+            created_date = Localtime().gettime()
+            cur.execute("""INSERT INTO generate_mpesa_transaction_query_id (created_date) VALUES (%s)""",(created_date))
             mysql.get_db().commit() 
             
             int_var = cur.lastrowid
@@ -1349,8 +1349,8 @@ class UniqueNumber():
             return Response({"Couldn't connect to the Database"}, status=500)
     
         try:   
-            date_created = Localtime().gettime()
-            cur.execute("""INSERT INTO generate_mpesa_disbursement_request_id (date_created) VALUES (%s)""",(date_created))
+            created_date = Localtime().gettime()
+            cur.execute("""INSERT INTO generate_mpesa_disbursement_request_id (created_date) VALUES (%s)""",(created_date))
             mysql.get_db().commit() 
             
             int_var = cur.lastrowid
@@ -1378,8 +1378,8 @@ class UniqueNumber():
             return Response({"Couldn't connect to the Database"}, status=500)
     
         try:   
-            date_created = Localtime().gettime()
-            cur.execute("""INSERT INTO generate_mpesa_disbursement_response_id (date_created) VALUES (%s)""",(date_created))
+            created_date = Localtime().gettime()
+            cur.execute("""INSERT INTO generate_mpesa_disbursement_response_id (created_date) VALUES (%s)""",(created_date))
             mysql.get_db().commit() 
             
             int_var = cur.lastrowid
@@ -1407,8 +1407,8 @@ class UniqueNumber():
             return Response({"Couldn't connect to the Database"}, status=500)
     
         try:   
-            date_created = Localtime().gettime()
-            cur.execute("""INSERT INTO generate_mpesa_deposit_request_id (date_created) VALUES (%s)""",(date_created))
+            created_date = Localtime().gettime()
+            cur.execute("""INSERT INTO generate_mpesa_deposit_request_id (created_date) VALUES (%s)""",(created_date))
             mysql.get_db().commit() 
             
             int_var = cur.lastrowid
@@ -1436,8 +1436,8 @@ class UniqueNumber():
             return Response({"Couldn't connect to the Database"}, status=500)
     
         try:   
-            date_created = Localtime().gettime()
-            cur.execute("""INSERT INTO generate_sacco_id (date_created) VALUES (%s)""",(date_created))
+            created_date = Localtime().gettime()
+            cur.execute("""INSERT INTO generate_sacco_id (created_date) VALUES (%s)""",(created_date))
             mysql.get_db().commit() 
             
             int_var = cur.lastrowid
@@ -1464,8 +1464,8 @@ class UniqueNumber():
             return Response({"Couldn't connect to the Database"}, status=500)
     
         try:   
-            date_created = Localtime().gettime()
-            cur.execute("""INSERT INTO generate_sacco_payout_expense_id (date_created) VALUES (%s)""",(date_created))
+            created_date = Localtime().gettime()
+            cur.execute("""INSERT INTO generate_sacco_payout_expense_id (created_date) VALUES (%s)""",(created_date))
             mysql.get_db().commit() 
             
             int_var = cur.lastrowid
@@ -1493,8 +1493,8 @@ class UniqueNumber():
             return Response({"Couldn't connect to the Database"}, status=500)
     
         try:   
-            date_created = Localtime().gettime()
-            cur.execute("""INSERT INTO generate_sacco_payout_payment_id (date_created) VALUES (%s)""",(date_created))
+            created_date = Localtime().gettime()
+            cur.execute("""INSERT INTO generate_sacco_payout_payment_id (created_date) VALUES (%s)""",(created_date))
             mysql.get_db().commit() 
             
             int_var = cur.lastrowid
@@ -1522,8 +1522,8 @@ class UniqueNumber():
             return Response({"Couldn't connect to the Database"}, status=500)
     
         try:   
-            date_created = Localtime().gettime()
-            cur.execute("""INSERT INTO generate_cashout_loan_settlement_id (date_created) VALUES (%s)""",(date_created))
+            created_date = Localtime().gettime()
+            cur.execute("""INSERT INTO generate_cashout_loan_settlement_id (created_date) VALUES (%s)""",(created_date))
             mysql.get_db().commit() 
             
             int_var = cur.lastrowid

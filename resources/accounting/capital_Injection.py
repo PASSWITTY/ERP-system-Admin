@@ -185,7 +185,7 @@ class Capital_Injection():
             #Start of transaction posting - Debit Bank Account with amount
             transaction_name = 'Capital injection'
             description = 'Capital injection of Ksh. ' + str(amount)
-            layer4_id = UniqueNumber.transactionsdebitcreditId(self)
+            layer1_id = UniqueNumber.transactionsdebitcreditId(self)
 
             transaction_data = {"global_id":global_id, 
                                 "entry_id":id, 
@@ -196,7 +196,7 @@ class Capital_Injection():
                                 "transaction_name":transaction_name,
                                 "description":description, 
                                 "settlement_date":settlement_date,
-                                "layer4_id":layer4_id
+                                "layer1_id":layer1_id
                                 }
             
             #Debit Bank Accont with deposit amount
@@ -218,7 +218,7 @@ class Capital_Injection():
                                 "transaction_name":transaction_name,
                                 "description":description, 
                                 "settlement_date":settlement_date,
-                                "layer4_id":layer4_id
+                                "layer1_id":layer1_id
                                 }
             
             #Credit Shareholder Account with deposit amount

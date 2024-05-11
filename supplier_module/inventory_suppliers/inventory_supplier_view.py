@@ -1,9 +1,6 @@
 from flask import request, Response, json, jsonify
 from main import mysql, app
-from resources.alphanumeric.generate import UniqueNumber
 from resources.logs.logger import ErrorLogger
-from resources.suppliers.suppliers import Supplier
-from resources.inventory.inventory import Inventory
 from resources.payload.payload import Localtime
 
 class Suppliers():
