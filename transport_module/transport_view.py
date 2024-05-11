@@ -1,6 +1,5 @@
 from flask import request, Response, json, jsonify
 from main import mysql, app
-from accounts_module.accounts_model import Account
 from resources.alphanumeric.generate import UniqueNumber
 from resources.logs.logger import ErrorLogger
 from resources.payload.payload import Localtime

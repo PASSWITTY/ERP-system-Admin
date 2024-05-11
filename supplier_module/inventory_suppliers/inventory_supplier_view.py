@@ -1,6 +1,5 @@
 from flask import request, Response, json, jsonify
 from main import mysql, app
-from accounts_module.accounts_model import Account
 from resources.alphanumeric.generate import UniqueNumber
 from resources.logs.logger import ErrorLogger
 from resources.suppliers.suppliers import Supplier
@@ -467,7 +466,7 @@ class Suppliers():
     #                 stock_account_number = result['stock_account_number']
     #                 payable_account_number = result['payable_account_number']
                     
-    #                 cur.execute("""SELECT first_name, last_name FROM administrator_details WHERE user_id = %s """, [created_by_id])
+    #                 cur.execute("""SELECT first_name, last_name FROM user_details WHERE user_id = %s """, [created_by_id])
     #                 createdby_details = cur.fetchone()            
     #                 created_by = createdby_details['first_name'] + " " + createdby_details['last_name']
                     
@@ -576,7 +575,7 @@ class Suppliers():
     #                     stock_account_number = result['stock_account_number']
     #                     payable_account_number = result['payable_account_number']
                         
-    #                     cur.execute("""SELECT first_name, last_name FROM administrator_details WHERE user_id = %s """, [created_by_id])
+    #                     cur.execute("""SELECT first_name, last_name FROM user_details WHERE user_id = %s """, [created_by_id])
     #                     createdby_details = cur.fetchone()            
     #                     created_by = createdby_details['first_name'] + " " + createdby_details['last_name']
                         
@@ -929,7 +928,7 @@ class Suppliers():
     #                 stock_account_number = result['inventory_stock_account']
     #                 payable_account_number = result['supplier_payable_account']
                     
-    #                 cur.execute("""SELECT first_name, last_name FROM administrator_details WHERE user_id = %s """, [created_by_id])
+    #                 cur.execute("""SELECT first_name, last_name FROM user_details WHERE user_id = %s """, [created_by_id])
     #                 createdby_details = cur.fetchone()            
     #                 created_by = createdby_details['first_name'] + " " + createdby_details['last_name']
                     
@@ -1175,7 +1174,7 @@ class Suppliers():
     #                         invoice_id = purch['invoice_id']
     #                         purchase_date = purch['purchase_date']
                         
-    #                     cur.execute("""SELECT first_name, last_name FROM administrator_details WHERE user_id = %s """, [created_by_id])
+    #                     cur.execute("""SELECT first_name, last_name FROM user_details WHERE user_id = %s """, [created_by_id])
     #                     createdby_details = cur.fetchone()            
     #                     created_by = createdby_details['first_name'] + " " + createdby_details['last_name']
                         
@@ -1306,7 +1305,7 @@ class Suppliers():
     #                 invoice_id = purch['invoice_id']
     #                 purchase_date = purch['purchase_date']
                     
-    #             cur.execute("""SELECT first_name, last_name FROM administrator_details WHERE user_id = %s """, [created_by_id])
+    #             cur.execute("""SELECT first_name, last_name FROM user_details WHERE user_id = %s """, [created_by_id])
     #             createdby_details = cur.fetchone()            
     #             created_by = createdby_details['first_name'] + " " + createdby_details['last_name']
                 

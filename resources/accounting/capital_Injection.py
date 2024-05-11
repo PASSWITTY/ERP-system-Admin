@@ -115,7 +115,7 @@ class Capital_Injection():
                         return message    
                     
                     created_by_id = result['created_by']
-                    cur.execute("""SELECT first_name, last_name FROM administrator_details WHERE user_id = %s """, [created_by_id])
+                    cur.execute("""SELECT first_name, last_name FROM user_details WHERE user_id = %s """, [created_by_id])
                     createdby_details = cur.fetchone()            
                     created_by = createdby_details['first_name'] + " " + createdby_details['last_name']
 

@@ -1,6 +1,5 @@
 from flask import request, Response, json, jsonify
 from main import mysql, app
-from accounts_module.accounts_model import Account
 from resources.alphanumeric.generate import UniqueNumber
 from resources.logs.logger import ErrorLogger
 from resources.payload.payload import Localtime
@@ -56,7 +55,7 @@ class DistributionCenter():
             
             message = {"description":"Distribution center was created successfully",
                        "status":200}
-            return message, 200
+            return message
                         
 
         #Error handling
@@ -90,7 +89,6 @@ class DistributionCenter():
                 
         try:
             status = request_data["status"]
-        
             
             cur.execute("""SELECT id, name, address, city, building, shop_number, physical_location, country, county, postal_code, mobile_number, telephone_number, email, distribution_center_type_id, region, notes, created_date, created_by FROM distribution_centers WHERE status = %s """, (status))
             centers = cur.fetchall()            

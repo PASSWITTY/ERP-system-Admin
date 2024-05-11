@@ -4,7 +4,6 @@ from datetime import datetime
 from resources.transactions.transaction import Transaction
 from resources.payload.payload import Localtime
 from resources.alphanumeric.generate import UniqueNumber
-from accounts_module.accounts_model import Account
 from resources.logs.logger import ErrorLogger
 
 
@@ -90,7 +89,7 @@ class Supplier():
             if supplier:  
                 created_by_id = supplier['created_by']
                 
-                cur.execute("""SELECT first_name, last_name FROM administrator_details WHERE user_id= %s""", (created_by_id))
+                cur.execute("""SELECT first_name, last_name FROM user_details WHERE user_id= %s""", (created_by_id))
                 userdetails = cur.fetchone()
                 if userdetails:
                     created_by = userdetails['first_name'] + " " + userdetails['last_name']

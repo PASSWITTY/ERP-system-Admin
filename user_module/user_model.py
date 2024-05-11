@@ -287,7 +287,7 @@ class User():
             else:
                 message = {"description":"Failed to create new user!",
                            "status":201}
-                return message, 201
+                return message
 
         #Error handling
         except Exception as error:
