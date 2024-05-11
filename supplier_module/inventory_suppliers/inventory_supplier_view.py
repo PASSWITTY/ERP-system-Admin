@@ -107,9 +107,9 @@ class Suppliers():
             return message
                 
         try:
-            status = int(request_data["status"])
+            status = request_data["status"]
         
-            cur.execute("""SELECT * from suppliers WHERE status= %s ORDER BY date_created DESC""", [status])
+            cur.execute("""SELECT * from suppliers WHERE status= %s ORDER BY created_date DESC""", [status])
             results = cur.fetchall()    
             if results:
                 trans = []
@@ -119,7 +119,8 @@ class Suppliers():
                     created_by_id = result['created_by']
                     
                     cur.execute("""SELECT first_name, last_name FROM user_details WHERE user_id = %s """, [created_by_id])
-                    createdby_details = cur.fetchone()            
+                    createdby_details = cur.fetchone()  
+                              
                     created_by = createdby_details['first_name'] + " " + createdby_details['last_name']
                     no = no + 1
                     res = {
@@ -132,7 +133,7 @@ class Suppliers():
                         "country": result['country'],
                         "address": result['address'],
                         "postal_code": result['postal_code'],
-                        "datecreated": result['date_created'],
+                        "created_date": result['created_date'],
                         "createdby": created_by,                  
                         "created_by_id": created_by_id                  
                     }

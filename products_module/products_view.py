@@ -88,10 +88,9 @@ class Products():
             return message
                 
         try:
-            id = request_data["id"]
+            status = request_data["status"]
         
-            
-            cur.execute("""SELECT id, product_sub_category_id, name, ram, internal_storage, main_camera, front_camera, display, processor, operating_system, connectivity, colors, battery, image_path, date_created, created_by FROM product_mobile_phones_models WHERE status = %s """, (id))
+            cur.execute("""SELECT id, product_sub_category_id, name, ram, internal_storage, main_camera, front_camera, display, processor, operating_system, connectivity, colors, battery, image_path, date_created, created_by FROM product_mobile_phones_models WHERE status = %s """, (status))
             phone_models = cur.fetchall()            
             if phone_models:
                 mobile_phone_models = []
