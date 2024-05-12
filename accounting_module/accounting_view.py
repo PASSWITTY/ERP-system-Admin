@@ -73,7 +73,6 @@ class Accounting():
         status = account["status"]
 
         typeId = type_Id     
-        
         accountNumber = Accounts().accountNumber(typeId) 
         accountId = UniqueNumber().accountId()
         

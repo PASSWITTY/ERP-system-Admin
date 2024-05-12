@@ -2,6 +2,7 @@ from flask import request, Response, json, jsonify
 from main import mysql, app
 from resources.logs.logger import ErrorLogger
 from resources.payload.payload import Localtime
+from accounting_module.accounting_view import Accounting
 
 class Suppliers():
           
@@ -289,7 +290,7 @@ class Suppliers():
                 created_by = supplier["created_by"]
                 
                 approved_date = Localtime().gettime()
-               
+                
                 cur.execute("""UPDATE suppliers set status=1, approved_date = %s, approved_by = %s WHERE id = %s """, (approved_date, user_id, id))
                 mysql.get_db().commit()
                 rowcount = cur.rowcount
@@ -322,8 +323,8 @@ class Suppliers():
                         "reference_number":referenceNumber,
                         "user_id":created_by,
                         "status":1}
-                
-                    payable_account_res = Account().create_new_account(account) 
+                    
+                    payable_account_res = Accounting().create_new_account(account) 
                     
                     
                     #Create supplier prepayment account
@@ -354,7 +355,7 @@ class Suppliers():
                         "user_id":created_by,
                         "status":1}
                 
-                    prepaid_account_res = Account().create_new_account(account)       
+                    prepaid_account_res = Accounting().create_new_account(account)       
 
                     trans_message = {"description":"Supplier was approved successfully!",
                                     "status":200}

@@ -2,6 +2,7 @@ from flask import request, Response, json, jsonify
 from main import mysql, app
 from resources.logs.logger import ErrorLogger
 from resources.payload.payload import Localtime
+from accounting_module.accounting_view import Accounting
 
 class Products():
           
@@ -269,7 +270,8 @@ class Products():
                     "user_id":created_by,
                     "status":1}
             
-                stock_account_res = Account().create_new_account(account)  
+                stock_account_res = Accounting().create_new_account(account) 
+                # api_response = Accounting().create_new_account(request_data) 
                 
                 
                 #Create model cost of goods sold account
@@ -300,7 +302,7 @@ class Products():
                     "user_id":created_by,
                     "status":1}
             
-                cog_account_res = Account().create_new_account(account)
+                cog_account_res = Accounting().create_new_account(account)
                 
 
                 trans_message = {"description":"Mobile phone model was approved successfully!",
