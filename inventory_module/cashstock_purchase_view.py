@@ -2,6 +2,8 @@ from flask import request, Response, json, jsonify
 from main import mysql, app
 from resources.logs.logger import ErrorLogger
 from resources.payload.payload import Localtime
+from resources.transactions.bookkeeping import DebitCredit
+import uuid
 
 class CashStockPurchase():
           
@@ -14,21 +16,17 @@ class CashStockPurchase():
         # if error_messages:
         #     return jsonify({"error": error_messages}), 400
         
-        name = validated_data["name"]
-        address = validated_data["address"]
-        city = validated_data["city"]
-        building = validated_data["building"]
-        shop_number = validated_data["shop_number"]
-        physical_location = validated_data["physical_location"]
-        country = validated_data["country"]
-        county = validated_data["county"]
-        postal_code = validated_data["postal_code"]
-        mobile_number = validated_data["mobile_number"]
-        telephone_number = validated_data["telephone_number"]
-        email = validated_data["email"]
-        distribution_center_type_id = validated_data["distribution_center_type_id"]
-        region = validated_data["region"]
-        notes = validated_data["region"]
+        total_amount = float(validated_data["total_amount"].replace(",", ""))
+        supplier_name = validated_data["supplier_name"]
+        supplier_id = validated_data["supplier_id"]
+        supplier_payable_account_number = validated_data["supplier_payable_account_number"]
+        bank_account_number = validated_data["bank_account_number"]
+        purchase_date = validated_data["purchase_date"]
+        delivery_status = 1 #pending delivery       
+        product_details = json.dumps(validated_data["product_details"])
+        notes = validated_data["notes"] 
+        transaction_id = validated_data["transaction_id"] 
+        
         
         # Open A connection to the database
         try:
@@ -45,14 +43,39 @@ class CashStockPurchase():
             status = 2 #pending approval
             created_date = Localtime().gettime()
             created_by = user['id']
-
-            #store supplier details request
-            cur.execute("""INSERT INTO distribution_centers (name, address, city, building, shop_number ,physical_location, country, county, postal_code, mobile_number, telephone_number, email, distribution_center_type_id, region, notes, created_date, created_by, status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""", 
-                                                            (name, address, city, building, shop_number ,physical_location, country, county, postal_code, mobile_number, telephone_number, email, distribution_center_type_id, region, notes, created_date, created_by, status))
+            
+            trans_uuid_ = str(uuid.uuid4())
+            trans_uuid = trans_uuid_.replace("-", "" )
+            trans_uuid = str(trans_uuid)
+            global_id = 'zz' + str(trans_uuid[-12:])
+        
+            #store cash stock purchased details
+            cur.execute("""INSERT INTO cash_stock_purchases (global_id, total_amount, transaction_id, supplier_name, supplier_id, supplier_payable_account_number, bank_account_number ,purchase_date, delivery_status, notes, created_date, created_by, status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""", 
+                                                            (global_id, total_amount, transaction_id, supplier_name, supplier_id, supplier_payable_account_number, bank_account_number ,purchase_date, delivery_status, notes, created_date, created_by, status))
             mysql.get_db().commit()
+            rowcount = cur.rowcount
+            if rowcount:
+                
+                phone_model_details = json.loads(product_details)                
+                for phone_model_detail in phone_model_details:
+
+                    model_id = phone_model_detail["model_id"]
+                    quantity = phone_model_detail["quantity"]
+                    price_per_unit = float(phone_model_detail["price_per_unit"].replace(",", ""))
+                    total_amount_per_model = float(phone_model_detail["total_amount_per_model"].replace(",", ""))
+                
+                    cur.execute("""INSERT INTO cash_stock_purchase_models (global_id, model_id, price_per_unit, quantity, total_amount_per_model, created_date, created_by, status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""", 
+                                                                          (global_id, model_id, price_per_unit, quantity, total_amount_per_model, created_date, created_by, status))
+                    mysql.get_db().commit()
+            else:
+                message = {"description":"Failed to capture stock product details",
+                           "status":201}
+                return message
+                
+                
             cur.close()
             
-            message = {"description":"Distribution center was created successfully",
+            message = {"description":"Cash stock purchase transaction was created successfully",
                        "status":200}
             return message
                         
@@ -61,7 +84,7 @@ class CashStockPurchase():
         except Exception as error:
             message = {'status':501, 
                        'error':'sp_a02',
-                       'description':'Failed to create a Distribution center. Error description ' + format(error)}
+                       'description':'Failed to create cash stock purchase transaction. Error description ' + format(error)}
             ErrorLogger().logError(message)
             return jsonify(message), 501  
   
@@ -89,45 +112,58 @@ class CashStockPurchase():
         try:
             status = request_data["status"]
             
-            cur.execute("""SELECT id, name, address, city, building, shop_number, physical_location, country, county, postal_code, mobile_number, telephone_number, email, distribution_center_type_id, region, notes, created_date, created_by FROM distribution_centers WHERE status = %s """, (status))
-            centers = cur.fetchall()            
-            if centers:
+            cur.execute("""SELECT id, global_id, transaction_id, total_amount, supplier_name, supplier_id, supplier_payable_account_number, bank_account_number, purchase_date, delivery_status, notes, created_date, created_by FROM cash_stock_purchases WHERE status = %s """, (status))
+            purchases = cur.fetchall()            
+            if purchases:
                 response_array = []
                 
-                for center in centers:
+                for purchase in purchases:
+                    global_id = purchase["global_id"]
+                    
+                    product_details = []
+                    cur.execute("""SELECT id, model_id,  price_per_unit,  quantity, total_amount_per_model FROM cash_stock_purchase_models WHERE global_id = %s """, (global_id))
+                    models_purchased = cur.fetchall()
+                    if models_purchased:
+                        for model_purchased in models_purchased:
+                    
+                            model_details = {
+                                "model_id":model_purchased["model_id"],
+                                "price_per_unit":float(model_purchased["price_per_unit"]),
+                                "quantity":float(model_purchased["quantity"]),
+                                "total_amount_per_model":float(model_purchased["total_amount_per_model"])
+                            }
+                            product_details.append(model_details)
+                    
                     response = {
-                        "id": center['id'],
-                        "name": center['name'],
-                        "address": center['address'],
-                        "city": center['city'],
-                        "building": center['building'],
-                        "shop_number": center['shop_number'],
-                        "physical_location": center['physical_location'],
-                        "country": center['country'],
-                        "county": center['county'],
-                        "postal_code": center['postal_code'],
-                        "mobile_number": center['mobile_number'],
-                        "telephone_number": center['telephone_number'],
-                        "email": center['email'],
-                        "distribution_center_type_id": center['distribution_center_type_id'],
-                        "region": center['region'],
-                        "notes": center['notes'],
-                        "created_date": center['created_date'],
-                        "created_by_id": center['created_by']
+                        
+                        "id": purchase['id'],
+                        "total_amount": float(purchase['total_amount']),
+                        "transaction_id": purchase["transaction_id"],
+                        "supplier_name": purchase['supplier_name'],
+                        "supplier_id": purchase['supplier_id'],
+                        "supplier_payable_account_number": purchase['supplier_payable_account_number'],
+                        "bank_account_number": purchase['bank_account_number'],
+                        "purchase_date": purchase['purchase_date'],
+                        "product_details":product_details,
+                        "delivery_status": purchase['delivery_status'],
+                        "notes": purchase['notes'],
+                        "created_date": purchase['created_date'],
+                        "created_by_id": purchase['created_by']
+                        
                     }
                     response_array.append(response)
             
             
                 message = {'status':200,
                             'response':response_array, 
-                            'description':'Distribution center records were fetched successfully!'
+                            'description':'Cash stock purchase records were fetched successfully!'
                         }   
                 return jsonify(message), 200
             
             else:                
                 message = {'status':201,
                             'error':'sp_a04',
-                            'description':'Failed to fetch Distribution centers!'
+                            'description':'Failed to fetch cash stock purchase !'
                         }   
                 return jsonify(message), 201             
              
@@ -136,7 +172,7 @@ class CashStockPurchase():
         except Exception as error:
             message = {'status':501,
                        'error':'sp_a05',
-                       'description':'Failed to retrieve Distribution center record from database.' + format(error)}
+                       'description':'Failed to retrieve cash stock purchase record from database.' + format(error)}
             ErrorLogger().logError(message),
             return jsonify(message), 501  
         
@@ -165,29 +201,40 @@ class CashStockPurchase():
                 
         try:
         
-            cur.execute("""SELECT name, address, city, building, shop_number, physical_location, country, county, postal_code, mobile_number, telephone_number, email, distribution_center_type_id, region, notes, created_date, created_by FROM distribution_centers WHERE id = %s """, (id))
-            center = cur.fetchone()            
-            if center:
+            cur.execute("""SELECT id, global_id, transaction_id, total_amount, supplier_name, supplier_id, supplier_payable_account_number, bank_account_number, purchase_date, delivery_status, notes, created_date, created_by FROM cash_stock_purchases WHERE id = %s """, (id))
+            purchase = cur.fetchone()            
+            if purchase:
+                global_id = purchase["global_id"]
+                    
+                product_details = []
+                cur.execute("""SELECT id, model_id,  price_per_unit,  quantity, total_amount_per_model FROM cash_stock_purchase_models WHERE global_id = %s """, (global_id))
+                models_purchased = cur.fetchall()
+                if models_purchased:
+                    for model_purchased in models_purchased:
                 
+                        model_details = {
+                            "model_id":model_purchased["model_id"],
+                            "price_per_unit":float(model_purchased["price_per_unit"]),
+                            "quantity":float(model_purchased["quantity"]),
+                            "total_amount_per_model":float(model_purchased["total_amount_per_model"])
+                        }
+                        product_details.append(model_details)
+                            
                 response = {
-                    "id": id,
-                    "name": center['name'],
-                    "address": center['address'],
-                    "city": center['city'],
-                    "building": center['building'],
-                    "shop_number": center['shop_number'],
-                    "physical_location": center['physical_location'],
-                    "country": center['country'],
-                    "county": center['county'],
-                    "postal_code": center['postal_code'],
-                    "mobile_number": center['mobile_number'],
-                    "telephone_number": center['telephone_number'],
-                    "email": center['email'],
-                    "distribution_center_type_id": center['distribution_center_type_id'],
-                    "region": center['region'],
-                    "notes": center['notes'],
-                    "created_date": center['created_date'],
-                    "created_by_id": center['created_by']
+                    
+                    "id": purchase['id'],
+                    "transaction_id": purchase['transaction_id'],
+                    "total_amount": float(purchase['total_amount']),
+                    "supplier_name": purchase['supplier_name'],
+                    "supplier_id": purchase['supplier_id'],
+                    "supplier_payable_account_number": purchase['supplier_payable_account_number'],
+                    "bank_account_number": purchase['bank_account_number'],
+                    "purchase_date": purchase['purchase_date'],
+                    "product_details":product_details,
+                    "delivery_status": purchase['delivery_status'],
+                    "notes": purchase['notes'],
+                    "created_date": purchase['created_date'],
+                    "created_by_id": purchase['created_by']
                 }
                 
                 return response
@@ -195,7 +242,7 @@ class CashStockPurchase():
             else:                
                 message = {'status':201,
                             'error':'sp_a04',
-                            'description':'Failed to fetch Distribution center records!'
+                            'description':'Failed to fetch cash stock purchase records!'
                         }   
                 return jsonify(message), 201             
              
@@ -204,7 +251,7 @@ class CashStockPurchase():
         except Exception as error:
             message = {'status':501,
                        'error':'sp_a05',
-                       'description':'Failed to retrieve Distribution center record from database.' + format(error)}
+                       'description':'Failed to retrieve cash stock purchase record from database.' + format(error)}
             ErrorLogger().logError(message),
             return jsonify(message), 501
              
@@ -233,20 +280,60 @@ class CashStockPurchase():
             return jsonify(message)
 
         try:  
-            #update distribution center status
-            cur.execute("""UPDATE distribution_centers set status=1, approved_date = %s, approved_by = %s WHERE id = %s """, ([dateapproved, approved_by, id]))
-            mysql.get_db().commit()       
-            rowcount = cur.rowcount
-            if rowcount:     
+            #update cash stock purchase details
+            cur.execute("""SELECT id, global_id, transaction_id, total_amount, supplier_name, supplier_id, supplier_payable_account_number, bank_account_number, purchase_date, delivery_status, notes, created_date, created_by FROM cash_stock_purchases WHERE id = %s """, (id))
+            purchase = cur.fetchone()            
+            if purchase:
+                id = purchase["id"]
+                global_id = purchase["global_id"]
+                transaction_id = purchase["transaction_id"]
+                total_amount = float(purchase["total_amount"])
+                supplier_id = purchase["supplier_id"]
+                supplier_payable_account_number = purchase["supplier_payable_account_number"]
+                bank_account_number = purchase["bank_account_number"]
+                purchase_date = purchase["purchase_date"]
+                
+                
+                    
+                product_details = []
+                cur.execute("""SELECT id, model_id,  price_per_unit,  quantity, total_amount_per_model FROM cash_stock_purchase_models WHERE global_id = %s """, (global_id))
+                models_purchased = cur.fetchall()
+                if models_purchased:
+                    for model_purchased in models_purchased:
+                
+                        model_details = {
+                            "model_id":model_purchased["model_id"],
+                            "price_per_unit":float(model_purchased["price_per_unit"]),
+                            "quantity":float(model_purchased["quantity"]),
+                            "total_amount_per_model":float(model_purchased["total_amount_per_model"])
+                        }
+                        product_details.append(model_details)
+                
+                details = {
+                            "id":id,
+                            "user_id":user["id"],
+                            "global_id":global_id,
+                            "bank_account_number":bank_account_number,
+                            "payable_account_number":supplier_payable_account_number,
+                            "amount":total_amount,                
+                            "settlement_date":purchase_date,
+                            "transaction_id":transaction_id,
+                            "product_details":product_details
 
-                trans_message = {"description":"Distribution center was approved successfully!",
-                                "status":200}
-                return trans_message 
+                        }
+                        
+                api_message = DebitCredit().cash_stock_purchase_approve(details)  
+                if int(api_message["status"]) == 200:
+                    message = {'status':200,
+                                'description':'Cash stock purchase record was approved successfully!'}
+                    return jsonify(message)  
+                else:              
+                    return jsonify(api_message)
                 
             else:
                 message = {'status':500,
                             'error':'sp_a20',
-                            'description':'Distribution center was not approved!'}
+                            'description':'Cash stock purchase record was not approved!'}
                 ErrorLogger().logError(message)
                 return jsonify(message)
                     
@@ -254,7 +341,7 @@ class CashStockPurchase():
         except Exception as error:
             message = {'status':501,
                        'error':'sp_a09',
-                       'description':'Failed to approve distribution center record. Error description ' + format(error)}
+                       'description':'Failed to approve cash stock purchase record. Error description ' + format(error)}
             ErrorLogger().logError(message)
             return jsonify(message)  
         finally:

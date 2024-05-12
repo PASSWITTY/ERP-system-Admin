@@ -1,79 +1,50 @@
 import jwt
-import datetime
-# from dotenv import load_dotenv
-from jwt.api_jwt import PyJWT
-import main
 from functools import wraps
-from flask import app, request, jsonify
+from flask import request, jsonify
 from datetime import datetime, timedelta
 from resources.payload.payload import Localtime
-
-
-# Use JWT for auth and routes protection
-# Three functions are needed : Sign Tokens, Verify Tokens and Refresh Tokens
-from flask_jwt_extended import (create_access_token,
-                                create_refresh_token, jwt_required, get_jwt_identity)
-
-# Function to sign Tokens
-
+from flask_jwt_extended import (
+    create_access_token, create_refresh_token, jwt_required, get_jwt_identity
+)
+import main
 
 def sign_token(details):
-    # payload to use as we sign the token
-
-    jwt_OBJ = PyJWT()
     try:
         payload = {
-            # # 'iat': datetime.datetime.now(),
-            # 'exp': datetime.datetime.utcnow() + datetime.timedelta(days=1),
             '_id': details['user_id'],
             '_type': details['user_type']
         }
 
-        # Sign the Payload with the Key and hashing alorithm
-        # token = jwt.encode(
-        #     payload=payload, key=main.app.config["SECRET_KEY"]).decode("utf-8")
-
-        # jwt_extended
         access_token = create_access_token(identity=payload)
-        # print(access_token)
         refresh_token = create_refresh_token(identity=payload)
-        # print("Refresh", access_token)
 
         return access_token, refresh_token
     except Exception as e:
-        # print(str(e))
         return jsonify(str(e)), 500
 
-
 def verify_token(token):
-    # decode the token passed and check if ithas expired or is inavlid
     try:
-        jwt_OBJ = PyJWT()
-        payload = jwt_OBJ.decode(token, key=main.app.config["SECRET_KEY"])
+        payload = jwt.decode(token, key=main.app.config["SECRET_KEY"])
         return payload
-    except jwt.ExpiredSignatureError as e:
+    except jwt.ExpiredSignatureError:
         return False
-    except jwt.InvalidTokenError as e:
+    except jwt.InvalidTokenError:
         return False
-
 
 def sign_permissions(token):
-    jwt_OBJ = PyJWT()
     try:
-        
-        start_date = Localtime().gettime()   
-        now = datetime.strptime(start_date, '%Y-%m-%d %H:%M:%S') 
+        start_date = Localtime().gettime()
+        now = datetime.strptime(start_date, '%Y-%m-%d %H:%M:%S')
+        expiry_time = now + timedelta(minutes=1440)
                 
         payload = {
             'iat': now,
-            'exp': now + timedelta(minutes=180),
+            'exp': expiry_time,
             '_id': token
         }
 
-        # Sign the Payload with the Key and hashing alorithm
-        token = jwt.encode(
-            payload=payload, key=main.app.config["SECRET_KEY"]).decode("utf-8")
-        return token
+        encoded_token = jwt.encode(payload=payload, key=main.app.config["SECRET_KEY"]).decode("utf-8")
+        return encoded_token
     except Exception as e:
         return jsonify(str(e)), 500
 

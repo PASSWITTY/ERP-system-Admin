@@ -46,7 +46,7 @@ class Transaction():
             trans_uuid = str(trans_uuid)
             trans_id = 'tt' + str(trans_uuid[-12:])
             
-            datecreated = Localtime().gettime()   
+            created_date = Localtime().gettime()   
             #Update debit account balance, increase the balance.
             cur.execute("""UPDATE accounts set last_transaction_id = %s, last_amount = %s, balance = balance + %s WHERE number = %s""", ([trans_id],[amount],[amount],[dr_ac_number]))
             
@@ -73,8 +73,8 @@ class Transaction():
             #Record a debit transaction on a debit account
             status = 1
            
-            sql = "INSERT INTO transactions (id, global_id, layer1_id, entry_id, sub_entry_id, transaction_type, account_number, debit_amount, balance_before, balance_after, transaction_name, description, settlement_date, datecreated, status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)" 
-            values = (trans_id, global_id, layer1_id, entry_id, sub_entry_id, transaction_type, account_number, amount, balance_before, balance_after, dr_trans_name, description, settlementDate, datecreated, status)
+            sql = "INSERT INTO transactions (id, global_id, layer1_id, entry_id, sub_entry_id, transaction_type, account_number, debit_amount, balance_before, balance_after, transaction_name, description, settlement_date, created_date, status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)" 
+            values = (trans_id, global_id, layer1_id, entry_id, sub_entry_id, transaction_type, account_number, amount, balance_before, balance_after, dr_trans_name, description, settlementDate, created_date, status)
             cur.execute(sql, values)             
              
             data = {"trans_id":trans_id,"amount":amount, "dr_ac_number":dr_ac_number}
@@ -180,7 +180,7 @@ class Transaction():
             trans_uuid = str(trans_uuid)
             trans_id = 'tt' + str(trans_uuid[-12:])
             
-            datecreated = Localtime().gettime()
+            created_date = Localtime().gettime()
             #Record a credit transaction on a debit account
             cur.execute("""UPDATE accounts set last_transaction_id = %s, last_amount = %s, balance= balance - %s WHERE number = %s""", ([trans_id],[amount],[amount],[cr_ac_number]))
         
@@ -206,8 +206,8 @@ class Transaction():
 
             status = 1
             
-            sql = "INSERT INTO transactions (id, global_id, layer1_id, entry_id, sub_entry_id, transaction_type, account_number, credit_amount, balance_before, balance_after, transaction_name, description, settlement_date, datecreated, status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
-            values = (trans_id, global_id, layer1_id, entry_id, sub_entry_id, transaction_type, account_number, amount, balance_before, balance_after, cr_trans_name, description, settlementDate, datecreated, status)
+            sql = "INSERT INTO transactions (id, global_id, layer1_id, entry_id, sub_entry_id, transaction_type, account_number, credit_amount, balance_before, balance_after, transaction_name, description, settlement_date, created_date, status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+            values = (trans_id, global_id, layer1_id, entry_id, sub_entry_id, transaction_type, account_number, amount, balance_before, balance_after, cr_trans_name, description, settlementDate, created_date, status)
             cur.execute(sql, values)
             
             data = {"trans_id":trans_id,"amount":amount, "cr_ac_number":cr_ac_number}
@@ -311,7 +311,7 @@ class Transaction():
             trans_uuid = str(trans_uuid)
             trans_id = 'tt' + str(trans_uuid[-12:])
             
-            datecreated = Localtime().gettime()
+            created_date = Localtime().gettime()
             #Update debit account balance, decrease the balance.
             cur.execute("""UPDATE accounts set last_transaction_id = %s, last_amount = %s, balance= balance - %s WHERE number = %s""", ([trans_id], [amount], [amount], [dr_ac_number]))
         except Exception as error:
@@ -337,8 +337,8 @@ class Transaction():
 
             #Record a credit transaction on a debit account
             status = 1
-            sql = "INSERT INTO transactions (id, global_id, layer1_id, entry_id, sub_entry_id, transaction_type, account_number, debit_amount, balance_before, balance_after, transaction_name, description, settlement_date, datecreated, status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
-            values = (trans_id, global_id, layer1_id, entry_id, sub_entry_id, transaction_type, account_number, amount, balance_before, balance_after, dr_trans_name, description, settlementDate, datecreated, status)
+            sql = "INSERT INTO transactions (id, global_id, layer1_id, entry_id, sub_entry_id, transaction_type, account_number, debit_amount, balance_before, balance_after, transaction_name, description, settlement_date, created_date, status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+            values = (trans_id, global_id, layer1_id, entry_id, sub_entry_id, transaction_type, account_number, amount, balance_before, balance_after, dr_trans_name, description, settlementDate, created_date, status)
             cur.execute(sql, values) 
             
             data = {"trans_id":trans_id,"amount":amount, "dr_ac_number":dr_ac_number}
@@ -441,7 +441,7 @@ class Transaction():
             trans_uuid = str(trans_uuid)
             trans_id = 'tt' + str(trans_uuid[-12:])
             
-            datecreated = Localtime().gettime()
+            created_date = Localtime().gettime()
             #Update credit account balance, increase the balance.
             cur.execute("""UPDATE accounts set last_transaction_id = %s, last_amount = %s, balance= balance + %s WHERE number = %s""", ([trans_id],[amount],[amount],[cr_ac_number]))
         
@@ -467,8 +467,8 @@ class Transaction():
 
             #Record a debit transaction on a debit account
             status = 1
-            sql = "INSERT INTO transactions (id, global_id, layer1_id, entry_id, sub_entry_id, transaction_type, account_number, credit_amount, balance_before, balance_after, transaction_name, description, settlement_date, datecreated, status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
-            values = (trans_id, global_id, layer1_id, entry_id, sub_entry_id, transaction_type, account_number, amount, balance_before, balance_after, cr_trans_name, description, settlementDate, datecreated, status)
+            sql = "INSERT INTO transactions (id, global_id, layer1_id, entry_id, sub_entry_id, transaction_type, account_number, credit_amount, balance_before, balance_after, transaction_name, description, settlement_date, created_date, status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+            values = (trans_id, global_id, layer1_id, entry_id, sub_entry_id, transaction_type, account_number, amount, balance_before, balance_after, cr_trans_name, description, settlementDate, created_date, status)
             cur.execute(sql, values)
             
             data = {"trans_id":trans_id,"amount":amount, "cr_ac_number":cr_ac_number}
