@@ -403,6 +403,7 @@ class DebitCredit():
         payable_account_number = details["payable_account_number"]
         settlement_date = details["settlement_date"]
         transaction_id = details["transaction_id"]
+        dateapproved = Localtime().gettime()
      
         try:
             cur = mysql.get_db().cursor()
@@ -413,6 +414,8 @@ class DebitCredit():
             ErrorLogger().logError(message)
             return message       
         try:
+            #Check if there was transport cost incurred
+            if amount > 0:
                 #fetch default transpot cost of service account
                 cur.execute("""SELECT account_number FROM default_accounts WHERE default_status =1 AND default_type_number= 6""")
                 cog_ac = cur.fetchone()
@@ -582,7 +585,6 @@ class DebitCredit():
                             pass
                         
                
-                dateapproved = Localtime().gettime()
                 #update capital injection status
                 cur.execute("""UPDATE products_in_transit set status=1, approved_date = %s, approved_by = %s WHERE id = %s """, ([dateapproved, approved_by, id]))
                 mysql.get_db().commit() 
@@ -595,6 +597,18 @@ class DebitCredit():
                                "description":"Transit stock transaction was approved successfully!",
                                "status":200}
                     return message
+            else:
+                
+                #update capital injection status
+                cur.execute("""UPDATE products_in_transit set status=1, approved_date = %s, approved_by = %s WHERE id = %s """, ([dateapproved, approved_by, id]))
+                mysql.get_db().commit() 
+                rowcount = cur.rowcount
+                if rowcount:
+                    message = {
+                               "description":"Transit stock transaction was approved successfully!",
+                               "status":200}
+                    return message
+                
                 
         except Exception as error:
             message = {'status':501,

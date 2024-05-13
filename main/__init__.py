@@ -53,6 +53,7 @@ from accounting_module.accounting_url import accounting_bp
 from finance_module.finance_url import finance_bp
 from inventory_module.cashstock_purchase_url import cashstock_purchase_bp
 from inventory_module.stockin_transit_url import stockin_transit_bp
+from inventory_module.mobilephone_receive_transit_stock_url import mobilephones_receive_transit_stock_bp
 
 app.register_blueprint(user_bp, url_prefix="/api/v1/users") 
 app.register_blueprint(inventory_supplier_bp, url_prefix="/api/v1/suppliers")
@@ -64,6 +65,7 @@ app.register_blueprint(accounting_bp, url_prefix="/api/v1/accounting")
 app.register_blueprint(finance_bp, url_prefix="/api/v1/finance")
 app.register_blueprint(cashstock_purchase_bp, url_prefix="/api/v1/cashstock-purchase")
 app.register_blueprint(stockin_transit_bp, url_prefix="/api/v1/transit-stock")
+app.register_blueprint(mobilephones_receive_transit_stock_bp, url_prefix="/api/v1/mobilephone-receive-transit-stock")
 
 # Upload folder
 app.config['UPLOAD_FOLDER'] = 'static/files'

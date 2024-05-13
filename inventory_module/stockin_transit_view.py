@@ -19,7 +19,6 @@ class TransitStock():
        
         purchase_type = validated_data["purchase_type"]
         stock_purchases_id = validated_data["stock_purchases_id"]
-        global_id = validated_data["global_id"]
         delivery_address = validated_data["delivery_address"]
         delivery_note_number = validated_data["delivery_note_number"]
         recipient_address = validated_data["recipient_address"] 
@@ -60,13 +59,18 @@ class TransitStock():
             status = 2 #pending approval
             created_date = Localtime().gettime()
             created_by = user['id']
-            
-            trans_uuid_ = str(uuid.uuid4())
-            trans_uuid = trans_uuid_.replace("-", "" )
-            trans_uuid = str(trans_uuid)
-            global_id = 'zz' + str(trans_uuid[-12:])
+                        
+            #fetch cash stock purchased details
+            cur.execute("""SELECT global_id FROM cash_stock_purchases WHERE id = %s """, (stock_purchases_id))
+            purchased = cur.fetchone()            
+            if purchased:
+                global_id = purchased["global_id"]
+            else:
+                message = {"description":"Global id not fetched for cash stock purchased",
+                           "status":201}
+                return message
         
-            #put stock on transit stock purchased details
+            #put stock in transit
             cur.execute("""INSERT INTO products_in_transit (global_id, purchase_type, stock_purchases_id, delivery_address, delivery_note_number, delivery_date, recipient_address, recipient_name ,recipient_mobile_number, transporter_name, transporter_id, bank_account_number, transporter_payable_account_number, transporter_cost, transport_mode, registration_number, contact_name, contact_number, stock_state, notes, created_date, created_by, status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""", 
                                                            (global_id, purchase_type, stock_purchases_id, delivery_address, delivery_note_number, delivery_date, recipient_address, recipient_name ,recipient_mobile_number, transporter_name, transporter_id, bank_account_number, transporter_payable_account_number, transporter_cost, transport_mode, registration_number, contact_name, contact_number, stock_state, notes, created_date, created_by, status))
             mysql.get_db().commit()
