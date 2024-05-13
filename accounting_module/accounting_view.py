@@ -473,5 +473,59 @@ class Accounting():
             cur.close()
 
 
-     
-   
+    def list_specific_accounts_by_type(self,user):
+        details = request.get_json()
+        if details == None:
+            message = {'status':402,
+                       'error':'aa_a25',
+                       'description':'Request data is missing some details!'}
+            ErrorLogger().logError(message)
+            return jsonify(message)
+
+        type = details["type"]
+        status = details["status"]
+        
+
+        try:
+            cur = mysql.get_db().cursor()
+        except:
+            message = {'status':500,
+                       'error':'aa_a28',
+                       'description':"Couldn't connect to the Database!"}
+            ErrorLogger().logError(message)
+            return jsonify(message)
+        # print("select")
+        try:
+            cur.execute("""SELECT * FROM accounts WHERE type_id = %s AND status = %s """, [type, status])
+            results = cur.fetchall()
+            cur.close()
+
+            wallets = []
+            for account in results:
+                res = {
+                    "account_id": account['id'],
+                    "account_name": account['name'],
+                    "reference_number": account['reference_no'],
+                    "type": account['type'],
+                    "account_number": account['number'],
+                    "balance": float(account['balance'])
+
+                }
+                wallets.append(res)
+              
+            #The response object
+            message = {'status':200,
+                        'response':wallets,
+                        'description':'Account record was found!'}
+
+            return jsonify(message)
+    
+        #Error handling
+        except Exception as error:
+            message = {'status':501,
+                       'error':'aa_a29',
+                       'description':'Failed to fetch account details! Error description ' + format(error)}
+            ErrorLogger().logError(message)
+            return message 
+        finally:
+            cur.close()

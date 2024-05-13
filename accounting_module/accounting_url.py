@@ -42,6 +42,12 @@ def list_account_categories():
     return Accounting().list_account_categories(user)
 
 
+@accounting_bp.route("/list-specific-accounts-by-type", methods=["POST"])
+@jwt_required()
+def list_specific_accounts_by_type():
+    user = current_user
+    return Accounting().list_specific_accounts_by_type(user)
+
 
 
 
