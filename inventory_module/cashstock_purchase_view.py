@@ -293,10 +293,8 @@ class CashStockPurchase():
                 bank_account_number = purchase["bank_account_number"]
                 purchase_date = purchase["purchase_date"]
                 
-                
-                    
                 product_details = []
-                cur.execute("""SELECT id, model_id,  price_per_unit,  quantity, total_amount_per_model FROM cash_stock_purchase_models WHERE global_id = %s """, (global_id))
+                cur.execute("""SELECT id, model_id, price_per_unit, quantity, total_amount_per_model FROM cash_stock_purchase_models WHERE global_id = %s """, (global_id))
                 models_purchased = cur.fetchall()
                 if models_purchased:
                     for model_purchased in models_purchased:

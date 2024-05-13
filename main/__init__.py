@@ -49,9 +49,10 @@ from products_module.products_url import products_bp
 from inventory_module.distribution_centers_url import distribution_center_bp  
 from transport_module.transport_url import transport_bp
 from payments_module.payments_url import payments_bp
-from accounting_module.accounting_url import accounting_bp
+from accounting_module.accounting_url import accounting_bp 
 from finance_module.finance_url import finance_bp
 from inventory_module.cashstock_purchase_url import cashstock_purchase_bp
+from inventory_module.stockin_transit_url import stockin_transit_bp
 
 app.register_blueprint(user_bp, url_prefix="/api/v1/users") 
 app.register_blueprint(inventory_supplier_bp, url_prefix="/api/v1/suppliers")
@@ -59,9 +60,10 @@ app.register_blueprint(products_bp, url_prefix="/api/v1/products")
 app.register_blueprint(distribution_center_bp, url_prefix="/api/v1/distribution-centers") 
 app.register_blueprint(transport_bp, url_prefix="/api/v1/transport")
 app.register_blueprint(payments_bp, url_prefix="/api/v1/payments")
-app.register_blueprint(accounting_bp, url_prefix="/api/v1/accounting")
+app.register_blueprint(accounting_bp, url_prefix="/api/v1/accounting") 
 app.register_blueprint(finance_bp, url_prefix="/api/v1/finance")
 app.register_blueprint(cashstock_purchase_bp, url_prefix="/api/v1/cashstock-purchase")
+app.register_blueprint(stockin_transit_bp, url_prefix="/api/v1/transit-stock")
 
 # Upload folder
 app.config['UPLOAD_FOLDER'] = 'static/files'
