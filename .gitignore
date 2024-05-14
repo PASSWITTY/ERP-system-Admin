@@ -6,4 +6,4 @@ venv/
 .env
 keys/
 *.log
-static
+static/
