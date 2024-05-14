@@ -204,8 +204,6 @@ class User():
             ErrorLogger().logError(message),
             return jsonify(message), 501  
         
-
-
     def create_user(self, user):
         #Get the request data 
         request_data = request.get_json()       
@@ -276,8 +274,8 @@ class User():
             rowcount = cur.rowcount
             if rowcount:
                 user_id = cur.lastrowid
-                cur.execute("""INSERT INTO user_details (first_name, middle_name, last_name, user_id, id_number, gender, mobile_number, other_mobile_number, marital_status, country, county, town, address, postal_code, kra_pin, nssf_number, nhif_number, id_front, id_back, selfie, date_created, created_by) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""", 
-                                                        (first_name, middle_name, last_name, user_id, id_number, gender, mobile_number, other_mobile_number, marital_status, country, county, town, address, postal_code, kra_pin, nssf_number, nhif_number, id_front, id_back, selfie, date_created, created_by))
+                cur.execute("""INSERT INTO user_details (first_name, middle_name, last_name, user_id, user_category_id, id_number, gender, mobile_number, other_mobile_number, marital_status, country, county, town, address, postal_code, kra_pin, nssf_number, nhif_number, id_front, id_back, selfie, date_created, created_by) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""", 
+                                                        (first_name, middle_name, last_name, user_id,  user_categories, id_number, gender, mobile_number, other_mobile_number, marital_status, country, county, town, address, postal_code, kra_pin, nssf_number, nhif_number, id_front, id_back, selfie, date_created, created_by))
                 mysql.get_db().commit()
                 cur.close()
                 
@@ -330,15 +328,32 @@ class User():
                 for user in users:
                     user_id = user['id']
                     
-                    cur.execute("""SELECT first_name, middle_name, last_name, id_number, gender, mobile_number, other_mobile_number, marital_status, country, county, town, address, postal_code, kra_pin, nssf_number, nhif_number, id_front, id_back, selfie, date_created, created_by FROM user_details WHERE user_id = %s """, (user_id))
+                    cur.execute("""SELECT first_name, middle_name, last_name, id_number, user_category_id, gender, mobile_number, other_mobile_number, marital_status, country, county, town, address, postal_code, kra_pin, nssf_number, nhif_number, id_front, id_back, selfie, date_created, created_by FROM user_details WHERE user_id = %s """, (user_id))
                     user_details = cur.fetchone() 
                     if user_details:
+                        user_category_id = int(user_details['user_category_id'])
+                        
+                        if user_category_id == 1:
+                            user_type_name = "Administrators"
+                        elif user_category_id == 2:
+                            user_type_name = "Stockist"
+                        elif user_category_id == 3:
+                            user_type_name = "Managers"
+                        elif user_category_id == 4:
+                            user_type_name = "Team Leaders"
+                        elif user_category_id == 5:
+                            user_type_name = "Agents"
+                        else:
+                            user_type_name = ''
+                            
                         response = {
                             "id": user['id'],
                             "username": user['username'],
                             "email": user['email'],
                             "contact": user['contact'],
                             "user_type": user['user_type'],
+                            "user_type_name":user_type_name,
+                            "user_category_id": user_category_id,
                             "first_name": user_details['first_name'],
                             "middle_name": user_details['middle_name'],
                             "last_name": user_details['last_name'],
@@ -368,8 +383,6 @@ class User():
                             'description':'Failed to fetch user records!'
                         }   
                         return jsonify(message), 201
-                        
-            
             
                 message = {'status':200,
                             'response':response_array, 
@@ -383,7 +396,6 @@ class User():
                             'description':'User records were not found!'
                         }   
                 return jsonify(message), 201             
-             
             
         #Error handling
         except Exception as error:

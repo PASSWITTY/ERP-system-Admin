@@ -42,7 +42,7 @@ class ManagerDistribution():
                            "status":201}
                 return message
            
-            stock_state = 1 #'pending receive'
+            stock_state = 0 #'pending receive'
             status = 2 #pending approval
             created_date = Localtime().gettime()
             created_by = user['id']
@@ -337,8 +337,7 @@ class ManagerDistribution():
             if rowcount:   
                 status = 1
                 
-                #stock_state = 1 Meaning manager received the stock and it is available
-                cur.execute("""UPDATE mobile_phones_manager_stock set stock_state = 1, approved_date = %s, approved_by =%s, status = %s WHERE id = %s """, (created_date, approved_by, status, id))
+                cur.execute("""UPDATE mobile_phones_manager_stock set approved_date = %s, approved_by =%s, status = %s WHERE id = %s """, (created_date, approved_by, status, id))
                 mysql.get_db().commit() 
                  
                 trans_message = {"description":"Mobile phone dispatch to manager was approved successfully!",
@@ -388,7 +387,7 @@ class ManagerDistribution():
         #Save data to the database
         
         try:
-            stock_state = 1 #'stock available'
+            stock_state = 1 #'stock received and is available'
             
             created_date = Localtime().gettime()
             created_by = user['id']
