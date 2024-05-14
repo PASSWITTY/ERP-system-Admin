@@ -25,10 +25,8 @@ app.config['MYSQL_DATABASE_DB'] = os.environ.get('MYSQL_DATABASE_NAME')
 app.config['MYSQL_DATABASE_PORT'] = 3306
 app.config["SECRET_KEY"] = os.environ.get('SECRET_KEY')
 app.config["JWT_SECRET_KEY"] = os.environ.get('JWT_SECRET_KEY')
-
-ACCESS_TOKEN_EXPIRES = timedelta(days=1)
-REFRESH_TOKEN_EXPIRES = timedelta(days=1)
-
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(days=1)
+app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=30)
 # sms config
 app.config['SMS_API_KEY'] = os.environ.get('SMS_API_KEY')
 app.config['SMS_CLIENT_ID'] = os.environ.get('SMS_CLIENT_ID')
