@@ -238,17 +238,14 @@ class DistributionCenter():
             mysql.get_db().commit()       
             rowcount = cur.rowcount
             if rowcount:     
-
                 trans_message = {"description":"Distribution center was approved successfully!",
-                                "status":200}
-                return trans_message 
+                                 "status":200}
+                return jsonify(trans_message), 200
                 
             else:
-                message = {'status':500,
-                            'error':'sp_a20',
-                            'description':'Distribution center was not approved!'}
-                ErrorLogger().logError(message)
-                return jsonify(message)
+                message = {'status':404,
+                           'description':'Distribution center record was not found!'}
+                return jsonify(message), 404
                     
         #Error handling
         except Exception as error:

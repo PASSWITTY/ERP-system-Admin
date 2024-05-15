@@ -16,7 +16,6 @@ class TransitStock():
         # if error_messages:
         #     return jsonify({"error": error_messages}), 400
         
-       
         purchase_type = validated_data["purchase_type"]
         stock_purchases_id = validated_data["stock_purchases_id"]
         delivery_address = validated_data["delivery_address"]

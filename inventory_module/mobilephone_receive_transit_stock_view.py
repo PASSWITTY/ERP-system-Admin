@@ -57,12 +57,15 @@ class ReceiveTransitStock():
             cur.execute("""INSERT INTO mobile_phones_transit_stock_received (global_id, products_in_transit_id, distribution_center_id, model_id, imei_1, imei_2, qr_code_id, received_date, stock_state, remarks, created_date, created_by, status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""", 
                                                                             (global_id, products_in_transit_id, distribution_center_id, model_id, imei_1, imei_2, qr_code_id, received_date, stock_state, remarks, created_date, created_by, status))
             mysql.get_db().commit()
-            cur.close()
-            
-            message = {"description":"Transit stock was received successfully",
+            rowcount = cur.rowcount
+            if rowcount:
+                message = {"description":"Transit stock was received successfully",
                        "status":200}
-            return message
-                        
+                return jsonify(message), 200
+            else:
+                message = {"description":"Failed to receive transit stock! Maybe is has been received!",
+                           "status":404}
+                return jsonify(message), 404 
 
         #Error handling
         except Exception as error:
@@ -71,6 +74,8 @@ class ReceiveTransitStock():
                        'description':'Failed to receive transit stock. Error description ' + format(error)}
             ErrorLogger().logError(message)
             return jsonify(message), 501  
+        finally:
+            cur.close()
   
     def list_received_stock(self, user):
         

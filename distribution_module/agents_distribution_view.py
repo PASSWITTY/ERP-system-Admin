@@ -39,7 +39,7 @@ class AgentsDistribution():
                 global_id = purchased["global_id"]
             else:
                 message = {"description":"Global id not fetched from teamleaders stock received",
-                           "status":201}
+                           "status":404}
                 return message
            
             stock_state = 0 #'pending receive'
@@ -447,7 +447,7 @@ class AgentsDistribution():
                        'error':'sp_a11',
                        'description':"Couldn't connect to the Database!"}
             ErrorLogger().logError(message)
-            return message
+            return jsonify(message), 500
         #Save data to the database
         
         try:
@@ -456,22 +456,25 @@ class AgentsDistribution():
             created_date = Localtime().gettime()
             created_by = user['id']
 
-            #store supplier details request
+            #agent received stock 
             
-            cur.execute("""UPDATE mobile_phones_agents_stock set agent_remarks = %s, agent_received_date =%s, stock_state = %s, update_date = %s, updated_by = %s WHERE id = %s """, (agent_remarks, agent_received_date, stock_state, created_date, created_by, id))
+            cur.execute("""UPDATE mobile_phones_agents_stock set agent_remarks = %s, agent_received_date =%s, stock_state = %s, update_date = %s, updated_by = %s WHERE stock_state = 0 AND id = %s """, (agent_remarks, agent_received_date, stock_state, created_date, created_by, id))
             mysql.get_db().commit()
-            cur.close()
+            rowcount = cur.rowcount
+            if rowcount:
+                message = {"description":"Mobile phone was received by agent successfully",
+                           "status":200}
+                return jsonify(message), 200
+            else:
+                message = {"description":"Mobile phone record was not found!",
+                           "status":404}
+                return jsonify(message), 404
             
-            message = {"description":"Mobile phone was received by agent successfully",
-                       "status":200}
-            return message
-                        
-
         #Error handling
         except Exception as error:
             message = {'status':501, 
                        'error':'sp_a02',
                        'description':'Agent failed to receive mobile phone!. Error description ' + format(error)}
             ErrorLogger().logError(message)
-            return jsonify(message)
+            return jsonify(message), 501
    

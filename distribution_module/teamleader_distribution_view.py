@@ -352,39 +352,30 @@ class TeamLeaderDistribution():
             else:
                 mobilephone_managerstock_id = 0
          
-            #update mobile phone device stock state to 2 to mean it has been dispatched by manager to team leader
-            cur.execute("""UPDATE mobile_phones_manager_stock set stock_state = 2 WHERE id = %s """, ([mobilephone_managerstock_id]))
-            mysql.get_db().commit()       
+            status = 1 
+            cur.execute("""UPDATE mobile_phones_teamleader_stock set approved_date = %s, approved_by =%s, status = %s WHERE status = 2 AND id = %s """, (created_date, approved_by, status, id))
+            mysql.get_db().commit() 
             rowcount = cur.rowcount
-            if rowcount:   
-                status = 1
-                
-                cur.execute("""UPDATE mobile_phones_teamleader_stock set approved_date = %s, approved_by =%s, status = %s WHERE status = 2 AND id = %s """, (created_date, approved_by, status, id))
-                mysql.get_db().commit() 
-                rowcount = cur.rowcount
-                if rowcount:
-                    trans_message = {"description":"Mobile phone dispatch to team leader was approved successfully!",
-                                     "status":200}
-                    return trans_message 
-                else:
-                    trans_message = {"description":"Mobile phone dispatch record was not found!",
-                                     "status":201}
-                    return trans_message 
-                
+            if rowcount:
+                #update mobile phone device stock state to 2 to mean it has been dispatched by manager to team leader
+                cur.execute("""UPDATE mobile_phones_manager_stock set stock_state = 2 WHERE id = %s """, ([mobilephone_managerstock_id]))
+                mysql.get_db().commit()
+        
+                trans_message = {"description":"Mobile phone dispatch to team leader was approved successfully!",
+                                 "status":200}
+                return jsonify(trans_message), 200 
             else:
-                message = {'status':500,
-                            'error':'sp_a20',
-                            'description':'Failed to approve mobile phone dispatch to team leader!'}
-                ErrorLogger().logError(message)
-                return jsonify(message)
-                    
+                trans_message = {"description":"Mobile phone dispatch record was not found!",
+                                    "status":404}
+                return jsonify(trans_message), 404
+                
         #Error handling
         except Exception as error:
             message = {'status':501,
                        'error':'sp_a09',
                        'description':'Failed to approve mobile phone dispatch to team leader!. Error description ' + format(error)}
             ErrorLogger().logError(message)
-            return jsonify(message)  
+            return jsonify(message), 501
         finally:
             cur.close()
     
@@ -418,16 +409,20 @@ class TeamLeaderDistribution():
             created_date = Localtime().gettime()
             created_by = user['id']
 
-            #store supplier details request
+            #store team leader received stock details
             
-            cur.execute("""UPDATE mobile_phones_teamleader_stock set teamleader_remarks = %s, teamleader_received_date =%s, stock_state = %s, update_date = %s, updated_by = %s WHERE id = %s """, (teamleader_remarks, teamleader_received_date, stock_state, created_date, created_by, id))
+            cur.execute("""UPDATE mobile_phones_teamleader_stock set teamleader_remarks = %s, teamleader_received_date =%s, stock_state = %s, update_date = %s, updated_by = %s WHERE stock_state = 0 AND id = %s """, (teamleader_remarks, teamleader_received_date, stock_state, created_date, created_by, id))
             mysql.get_db().commit()
-            cur.close()
+            rowcount = cur.rowcount
+            if rowcount:
             
-            message = {"description":"Mobile phone was received by team leader successfully",
-                       "status":200}
-            return message
-                        
+                message = {"description":"Mobile phone was received by team leader successfully!",
+                           "status":200}
+                return message
+            else:
+                message = {"description":"Mobile phone record was not found!",
+                           "status":404}
+                return message
 
         #Error handling
         except Exception as error:

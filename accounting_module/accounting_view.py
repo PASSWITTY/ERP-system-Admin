@@ -162,9 +162,9 @@ class Accounting():
                            'description':'Account was approved successfully!'}
                 return jsonify(message), 200
             else:
-                message = {'status':201,
+                message = {'status':404,
                            'description':'Account record was not found!'}
-                return jsonify(message), 201
+                return jsonify(message), 404
 
         except Exception as error:         
             message = {'status':501,
