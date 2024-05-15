@@ -230,14 +230,14 @@ class Products():
             return jsonify(message)
 
         try:  
-            cur.execute("""SELECT name, created_by FROM product_mobile_phones_models WHERE status =2 AND id = %s""", [id])
+            cur.execute("""SELECT name, created_by FROM product_mobile_phones_models WHERE id = %s""", [id])
             phonemodel = cur.fetchone()
             if phonemodel:
                 model_name = phonemodel["name"]
                 created_by = phonemodel["created_by"]
                 
             #update phone model status
-            cur.execute("""UPDATE product_mobile_phones_models set status=1, date_approved = %s, approved_by = %s WHERE id = %s """, ([dateapproved, approved_by, id]))
+            cur.execute("""UPDATE product_mobile_phones_models set status=1, date_approved = %s, approved_by = %s WHERE status =2 AND id = %s """, ([dateapproved, approved_by, id]))
             mysql.get_db().commit()       
             rowcount = cur.rowcount
             if rowcount:   
@@ -304,17 +304,45 @@ class Products():
             
                 cog_account_res = Accounting().create_new_account(account)
                 
+                #Create model discount expense account
+                accountName = model_name
+                type_Id = 19 #Discount expense account type
+                categoryId = 23 #Discount expense account category 
+                sub_category = 0
+                mainaccount = 0
+                openingBalance = 0     
+                notes = ''
+                owner_id = id
+                entity_id = 0
+                description = ''
+                referenceNumber = ''
+                
+                account = {
+                    "name":accountName, 
+                    "accountType":type_Id, 
+                    "accountCategory":categoryId, 
+                    "accountSubCategory":sub_category,
+                    "main_account":mainaccount,
+                    "opening_balance":openingBalance, 
+                    "owner_id":owner_id, 
+                    "entity_id":entity_id, 
+                    "notes":notes, 
+                    "description":description, 
+                    "reference_number":referenceNumber,
+                    "user_id":created_by,
+                    "status":1}
+            
+                discount_account_res = Accounting().create_new_account(account)
+                
 
                 trans_message = {"description":"Mobile phone model was approved successfully!",
-                                "status":200}
-                return trans_message 
+                                 "status":200}
+                return jsonify(trans_message), 200
                 
             else:
                 message = {'status':500,
-                            'error':'sp_a20',
-                            'description':'Mobile phone model was not approved!'}
-                ErrorLogger().logError(message)
-                return jsonify(message)
+                           'description':'Mobile phone model was not approved!'}
+                return jsonify(message), 500
                     
         #Error handling
         except Exception as error:
@@ -322,7 +350,7 @@ class Products():
                        'error':'sp_a09',
                        'description':'Failed to approve phone model record. Error description ' + format(error)}
             ErrorLogger().logError(message)
-            return jsonify(message)  
+            return jsonify(message), 501  
         finally:
             cur.close()
 

@@ -153,19 +153,25 @@ class Accounting():
         try:   
             dateApproved = Localtime().gettime()
             approvedBy = user["id"]        
-            cur.execute("""UPDATE accounts set status=1, approvedon = %s, approvedby =%s WHERE id = %s""", ([dateApproved, approvedBy, account_id]))
+            cur.execute("""UPDATE accounts set status=1, approvedon = %s, approvedby =%s WHERE status=2 AND id = %s""", ([dateApproved, approvedBy, account_id]))
             mysql.get_db().commit()
+            rowcount = cur.rowcount
+            if rowcount: 
 
-            message = {'status':200,
-                       'description':'Account was approved successfully!'}
-            return jsonify(message)
+                message = {'status':200,
+                           'description':'Account was approved successfully!'}
+                return jsonify(message), 200
+            else:
+                message = {'status':201,
+                           'description':'Account was not approved!'}
+                return jsonify(message), 201
 
         except Exception as error:         
             message = {'status':501,
                        'error':'aa_a27',
                         'description':'Failed to approve new account.' + format(error)}
             ErrorLogger().logError(message)
-            return jsonify(message)  
+            return jsonify(message), 501  
         finally:
                 cur.close()
 
@@ -471,7 +477,6 @@ class Accounting():
             return jsonify(message), 501  
         finally:
             cur.close()
-
 
     def list_specific_accounts_by_type(self,user):
         details = request.get_json()
