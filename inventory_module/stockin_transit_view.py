@@ -42,8 +42,6 @@ class TransitStock():
         product_details = json.dumps(validated_data["product_details"])
         notes = validated_data["notes"] 
         
-        
-        
         # Open A connection to the database
         try:
             cur =  mysql.get_db().cursor()
@@ -370,7 +368,7 @@ class TransitStock():
 
         try:  
             #update cash stock purchase details
-            cur.execute("""SELECT id, global_id, delivery_note_number, transporter_cost, transporter_payable_account_number, bank_account_number, delivery_date FROM products_in_transit WHERE id = %s """, (id))
+            cur.execute("""SELECT id, global_id, delivery_note_number, transporter_cost, transporter_payable_account_number, bank_account_number, delivery_date FROM products_in_transit WHERE status = 2 AND id = %s """, (id))
             purchase = cur.fetchone()            
             if purchase:
                 id = purchase["id"]
@@ -396,16 +394,14 @@ class TransitStock():
                 if int(api_message["status"]) == 200:
                     message = {'status':200,
                                 'description':'Transit stock record was approved successfully!'}
-                    return jsonify(message)  
+                    return jsonify(message), 200  
                 else:              
                     return jsonify(api_message)
                 
             else:
-                message = {'status':500,
-                            'error':'sp_a20',
-                            'description':'Transit stock record was not approved!'}
-                ErrorLogger().logError(message)
-                return jsonify(message)
+                message = {'status':201,
+                            'description':'Transit stock record was not found!'}
+                return jsonify(message), 201
                     
         #Error handling
         except Exception as error:
@@ -413,7 +409,7 @@ class TransitStock():
                        'error':'sp_a09',
                        'description':'Failed to approve transit stock record. Error description ' + format(error)}
             ErrorLogger().logError(message)
-            return jsonify(message)  
+            return jsonify(message), 501
         finally:
             cur.close()
 

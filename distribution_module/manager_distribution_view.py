@@ -337,13 +337,18 @@ class ManagerDistribution():
             if rowcount:   
                 status = 1
                 
-                cur.execute("""UPDATE mobile_phones_manager_stock set approved_date = %s, approved_by =%s, status = %s WHERE id = %s """, (created_date, approved_by, status, id))
+                cur.execute("""UPDATE mobile_phones_manager_stock set approved_date = %s, approved_by =%s, status = %s WHERE status =2 AND id = %s """, (created_date, approved_by, status, id))
                 mysql.get_db().commit() 
-                 
-                trans_message = {"description":"Mobile phone dispatch to manager was approved successfully!",
-                                 "status":200}
-                return trans_message 
-                
+                rowcount = cur.rowcount
+                if rowcount:
+                    trans_message = {"description":"Mobile phone dispatch to manager was approved successfully!",
+                                     "status":200}
+                    return trans_message 
+                else:
+                    trans_message = {"description":"Mobile phone dispatch record was not found!",
+                                     "status":201}
+                    return trans_message
+                    
             else:
                 message = {'status':500,
                             'error':'sp_a20',

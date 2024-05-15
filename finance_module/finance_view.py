@@ -268,7 +268,6 @@ class Finance():
                 
                 cur.execute("""SELECT global_id, bank_account, shareholder_account, amount, settlement_date, transaction_id FROM accounting_capital_injection_entries WHERE status =2 AND id = %s """, [id])
                 entry = cur.fetchone()   
-                
                 if entry:
                         global_id = entry['global_id']         
                         bank_account_number = entry['bank_account'] 
@@ -298,17 +297,15 @@ class Finance():
                             return jsonify(api_message)
                        
                 else:
-                    message = {'status':500,
-                               'error':'ci_a08',
-                               'description':'Failed to approve capital injection transaction!'}
-                    ErrorLogger().logError(message)
-                    return jsonify(message) 
+                    message = {'status':201,
+                               'description':'Capital injection record was not found!'}
+                    return jsonify(message), 201 
             else:
                 message = {'status':500,
                            'error':'ci_a09',
                            'description':'Failed to approve capital injection transaction!'}
                 ErrorLogger().logError(message)
-                return jsonify(message)
+                return jsonify(message), 500
                       
     
         #Error handling

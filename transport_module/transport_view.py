@@ -5,7 +5,6 @@ from resources.logs.logger import ErrorLogger
 from resources.payload.payload import Localtime
 
 class Transport():
-          
   
     def list_transport_modes(self, user):
         

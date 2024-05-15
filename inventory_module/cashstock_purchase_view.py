@@ -280,8 +280,8 @@ class CashStockPurchase():
             return jsonify(message)
 
         try:  
-            #update cash stock purchase details
-            cur.execute("""SELECT id, global_id, transaction_id, total_amount, supplier_name, supplier_id, supplier_payable_account_number, bank_account_number, purchase_date, delivery_status, notes, created_date, created_by FROM cash_stock_purchases WHERE id = %s """, (id))
+            #fetch cash stock purchase details
+            cur.execute("""SELECT id, global_id, transaction_id, total_amount, supplier_name, supplier_id, supplier_payable_account_number, bank_account_number, purchase_date, delivery_status, notes, created_date, created_by FROM cash_stock_purchases WHERE status =2 AND id = %s """, (id))
             purchase = cur.fetchone()            
             if purchase:
                 id = purchase["id"]
@@ -329,11 +329,10 @@ class CashStockPurchase():
                     return jsonify(api_message)
                 
             else:
-                message = {'status':500,
-                            'error':'sp_a20',
-                            'description':'Cash stock purchase record was not approved!'}
-                ErrorLogger().logError(message)
-                return jsonify(message)
+                message = {'status':201,
+                            'description':'Cash stock purchase record was not found!'}
+                
+                return jsonify(message), 201
                     
         #Error handling
         except Exception as error:

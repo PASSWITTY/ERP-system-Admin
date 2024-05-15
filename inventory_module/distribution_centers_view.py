@@ -234,7 +234,7 @@ class DistributionCenter():
 
         try:  
             #update distribution center status
-            cur.execute("""UPDATE distribution_centers set status=1, approved_date = %s, approved_by = %s WHERE id = %s """, ([dateapproved, approved_by, id]))
+            cur.execute("""UPDATE distribution_centers set status=1, approved_date = %s, approved_by = %s WHERE status = 2 AND id = %s """, ([dateapproved, approved_by, id]))
             mysql.get_db().commit()       
             rowcount = cur.rowcount
             if rowcount:     

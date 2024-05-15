@@ -412,14 +412,12 @@ class Suppliers():
 
                     trans_message = {"description":"Supplier was approved successfully!",
                                     "status":200}
-                    return trans_message 
+                    return jsonify(trans_message), 200
              
             else:
-                message = {'status':500,
-                           'error':'sp_a08',
-                           'description':'Task was not completed successfully!'}
-                ErrorLogger().logError(message)
-                return jsonify(message)
+                message = {'status':201,
+                           'description':'Supplier record was not found!'}
+                return jsonify(message), 201
 
     
         #Error handling
@@ -428,7 +426,7 @@ class Suppliers():
                        'error':'sp_a09',
                        'description':'Failed to approve supplier record. Error description ' + format(error)}
             ErrorLogger().logError(message)
-            return jsonify(message)  
+            return jsonify(message), 501  
         finally:
             cur.close()
             

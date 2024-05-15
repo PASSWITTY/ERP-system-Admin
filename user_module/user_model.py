@@ -295,7 +295,6 @@ class User():
             ErrorLogger().logError(message)
             return jsonify(message), 501 
         
-        
     def list_users(self, user):
         
         request_data = request.get_json() 
@@ -405,7 +404,6 @@ class User():
             ErrorLogger().logError(message),
             return jsonify(message), 501
         
-        
     def get_user_details(self, user):
         
         request_data = request.get_json() 
@@ -493,7 +491,6 @@ class User():
                        'description':'Failed to fetch user record from database.' + format(error)}
             ErrorLogger().logError(message),
             return jsonify(message), 501
-        
 
     def approve_user(self, user):
         request_data = request.get_json() 
@@ -521,7 +518,7 @@ class User():
 
         try:  
             #update user status
-            cur.execute("""UPDATE users set status=1 WHERE id = %s """, (id))
+            cur.execute("""UPDATE users set status=1 WHERE status = 2 AND id = %s """, (id))
             mysql.get_db().commit()       
             rowcount = cur.rowcount
             if rowcount:  
@@ -537,11 +534,9 @@ class User():
                 return trans_message 
                 
             else:
-                message = {'status':500,
-                            'error':'sp_a20',
-                            'description':'Distribution center was not approved!'}
-                ErrorLogger().logError(message)
-                return jsonify(message)
+                message = {'status':201,
+                            'description':'User record was not found!'}
+                return jsonify(message), 201
                     
         #Error handling
         except Exception as error:
@@ -549,6 +544,6 @@ class User():
                        'error':'sp_a09',
                        'description':'Failed to approve distribution center record. Error description ' + format(error)}
             ErrorLogger().logError(message)
-            return jsonify(message)  
+            return jsonify(message), 501  
         finally:
             cur.close()

@@ -341,7 +341,7 @@ class Products():
                 
             else:
                 message = {'status':500,
-                           'description':'Mobile phone model was not approved!'}
+                           'description':'Mobile phone model was not found!'}
                 return jsonify(message), 500
                     
         #Error handling

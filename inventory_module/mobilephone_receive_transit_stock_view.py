@@ -280,36 +280,26 @@ class ReceiveTransitStock():
                             "status":200}
                 return message
             
-            #update quantity balance of the products in transit
-            cur.execute("""UPDATE products_in_transit_models set quantity_received = quantity_received + 1 WHERE products_in_transit_id = %s AND model_id = %s""", ([products_in_transit_id, model_id]))
+            #update mobile phones products received status
+            cur.execute("""UPDATE mobile_phones_transit_stock_received set status=1, approved_date = %s, approved_by = %s WHERE status = 2 AND id = %s """, ([dateapproved, approved_by, id]))
             mysql.get_db().commit() 
             rowcount = cur.rowcount
             if rowcount:
-            
-                #update mobile phones products received status
-                cur.execute("""UPDATE mobile_phones_transit_stock_received set status=1, approved_date = %s, approved_by = %s WHERE id = %s """, ([dateapproved, approved_by, id]))
-                mysql.get_db().commit() 
-                rowcount = cur.rowcount
-                if rowcount:
-                    
-                    message = {
-                                "description":"Products received was approved successfully!",
-                                "status":200}
-                    return message
-                    
-                else:
-                    message = {'status':500,
-                                'error':'sp_a20',
-                                'description':'Products received record was not approved!'}
-                    ErrorLogger().logError(message)
-                    return jsonify(message)
-            else:
+                #update quantity balance of the products in transit
+                cur.execute("""UPDATE products_in_transit_models set quantity_received = quantity_received + 1 WHERE products_in_transit_id = %s AND model_id = %s""", ([products_in_transit_id, model_id]))
+                mysql.get_db().commit()
+        
                 message = {
-                            "description":"Failed to updated quantity of products in transit!",
+                            "description":"Products received was approved successfully!",
                             "status":200}
                 return message
                 
-                    
+            else:
+                message = {'status':201,
+                            'description':'Products received record was not found!'}
+                return jsonify(message)
+           
+                
         #Error handling
         except Exception as error:
             message = {'status':501,

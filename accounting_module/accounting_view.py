@@ -163,7 +163,7 @@ class Accounting():
                 return jsonify(message), 200
             else:
                 message = {'status':201,
-                           'description':'Account was not approved!'}
+                           'description':'Account record was not found!'}
                 return jsonify(message), 201
 
         except Exception as error:         
