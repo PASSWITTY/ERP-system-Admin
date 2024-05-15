@@ -52,9 +52,10 @@ from finance_module.finance_url import finance_bp
 from inventory_module.cashstock_purchase_url import cashstock_purchase_bp
 from inventory_module.stockin_transit_url import stockin_transit_bp
 from inventory_module.mobilephone_receive_transit_stock_url import mobilephones_receive_transit_stock_bp  
-from distribution_module.manager_distribution_url import manager_distribution_bp
+from distribution_module.manager_distribution_url import manager_distribution_bp  
 from distribution_module.teamleader_distribution_url import teamleader_distribution_bp
 from distribution_module.agents_distribution_url import agents_distribution_bp
+from inventory_module.mobilephone_stock_prices_url import mobilephone_stock_price_bp
 
 
 
@@ -72,6 +73,7 @@ app.register_blueprint(manager_distribution_bp, url_prefix="/api/v1/manager-dist
 app.register_blueprint(teamleader_distribution_bp, url_prefix="/api/v1/teamleader-distribution")
 app.register_blueprint(agents_distribution_bp, url_prefix="/api/v1/agent-distribution")
 app.register_blueprint(mobilephones_receive_transit_stock_bp, url_prefix="/api/v1/mobilephone-receive-transit-stock")
+app.register_blueprint(mobilephone_stock_price_bp, url_prefix="/api/v1/mobilephone-stock-price")
 
 # Upload folder
 app.config['UPLOAD_FOLDER'] = 'static/files'
