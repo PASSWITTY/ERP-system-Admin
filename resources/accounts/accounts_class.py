@@ -785,6 +785,117 @@ class Accounts():
             return message
         finally:
             cur.close()
+    
+    def receivable_account(self):
+    
+        # Open A connection to the database
+        try:
+            cur =  mysql.get_db().cursor()            
+        except:
+            message = {"status":500,
+                       "data":0,
+                       "description":"Couldn't connect to the Database!"}
+            return message
+
+        try:
+            cur.execute("""SELECT account_number FROM default_accounts WHERE default_status =1 AND default_type_number= 8""")
+            r_ac = cur.fetchone()
+            if r_ac:
+                receivable_bank_account = r_ac["account_number"]
+
+                message = {"description":"Default Receivable Account was found!", 
+                           "data":receivable_bank_account,
+                           "status":200
+                           }
+
+                return message
+            else:
+                message = {
+                           "description":"Default receivable account has not been setup!", 
+                           "status":201
+                           }
+                return message
+             
+        except Exception as error:
+            message = {"status":501,
+                       "description":"Transaction failed! Error description " + format(error)}
+            return message
+        finally:
+            cur.close()
+    
+    def taxexpense_account(self):
+    
+        # Open A connection to the database
+        try:
+            cur =  mysql.get_db().cursor()            
+        except:
+            message = {"status":500,
+                       "data":0,
+                       "description":"Couldn't connect to the Database!"}
+            return message
+
+        try:
+            cur.execute("""SELECT account_number FROM default_accounts WHERE default_status =1 AND default_type_number= 3""")
+            tax_expense = cur.fetchone()
+            if tax_expense:
+                tax_expense_account = tax_expense["account_number"]
+
+                message = {"description":"Default Tax Expense Account was found!", 
+                           "data":tax_expense_account,
+                           "status":200
+                           }
+
+                return message
+            else:
+                message = {
+                           "description":"Default tax expense account has not been setup!", 
+                           "status":404
+                           }
+                return message
+             
+        except Exception as error:
+            message = {"status":501,
+                       "description":"Transaction failed! Error description " + format(error)}
+            return message
+        finally:
+            cur.close()
+    
+    def taxpayable_account(self):
+    
+        # Open A connection to the database
+        try:
+            cur =  mysql.get_db().cursor()            
+        except:
+            message = {"status":500,
+                       "data":0,
+                       "description":"Couldn't connect to the Database!"}
+            return message
+
+        try:
+            cur.execute("""SELECT account_number FROM default_accounts WHERE default_status =1 AND default_type_number= 4""")
+            tax_payable = cur.fetchone()
+            if tax_payable:
+                tax_payable_account = tax_payable["account_number"]
+
+                message = {"description":"Default Tax Payable Account was found!", 
+                           "data":tax_payable_account,
+                           "status":200
+                           }
+
+                return message
+            else:
+                message = {
+                           "description":"Default tax expense account has not been setup!", 
+                           "status":404
+                           }
+                return message
+             
+        except Exception as error:
+            message = {"status":501,
+                       "description":"Transaction failed! Error description " + format(error)}
+            return message
+        finally:
+            cur.close()
             
     def b2c_account(self):
 

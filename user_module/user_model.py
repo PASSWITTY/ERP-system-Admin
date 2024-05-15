@@ -217,6 +217,7 @@ class User():
         middle_name = validated_data["middle_name"]
         last_name = validated_data["last_name"]
         user_categories = validated_data["user_categories"]
+        distribution_center_id = validated_data["distribution_center_id"]
         mobile_number = validated_data["mobile_number"]
         email = validated_data["email_address"]
         gender = validated_data["gender"]
@@ -274,8 +275,8 @@ class User():
             rowcount = cur.rowcount
             if rowcount:
                 user_id = cur.lastrowid
-                cur.execute("""INSERT INTO user_details (first_name, middle_name, last_name, user_id, user_category_id, id_number, gender, mobile_number, other_mobile_number, marital_status, country, county, town, address, postal_code, kra_pin, nssf_number, nhif_number, id_front, id_back, selfie, date_created, created_by) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""", 
-                                                        (first_name, middle_name, last_name, user_id,  user_categories, id_number, gender, mobile_number, other_mobile_number, marital_status, country, county, town, address, postal_code, kra_pin, nssf_number, nhif_number, id_front, id_back, selfie, date_created, created_by))
+                cur.execute("""INSERT INTO user_details (first_name, middle_name, last_name, user_id, user_category_id, distribution_center_id, id_number, gender, mobile_number, other_mobile_number, marital_status, country, county, town, address, postal_code, kra_pin, nssf_number, nhif_number, id_front, id_back, selfie, date_created, created_by) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""", 
+                                                        (first_name, middle_name, last_name, user_id,  user_categories, distribution_center_id, id_number, gender, mobile_number, other_mobile_number, marital_status, country, county, town, address, postal_code, kra_pin, nssf_number, nhif_number, id_front, id_back, selfie, date_created, created_by))
                 mysql.get_db().commit()
                 cur.close()
                 
@@ -327,10 +328,22 @@ class User():
                 for user in users:
                     user_id = user['id']
                     
-                    cur.execute("""SELECT first_name, middle_name, last_name, id_number, user_category_id, gender, mobile_number, other_mobile_number, marital_status, country, county, town, address, postal_code, kra_pin, nssf_number, nhif_number, id_front, id_back, selfie, date_created, created_by FROM user_details WHERE user_id = %s """, (user_id))
+                    cur.execute("""SELECT first_name, middle_name, last_name, id_number, user_category_id, distribution_center_id, gender, mobile_number, other_mobile_number, marital_status, country, county, town, address, postal_code, kra_pin, nssf_number, nhif_number, id_front, id_back, selfie, date_created, created_by FROM user_details WHERE user_id = %s """, (user_id))
                     user_details = cur.fetchone() 
                     if user_details:
                         user_category_id = int(user_details['user_category_id'])
+                        distribution_center_id = user_details['distribution_center_id']
+                        
+                        cur.execute("""SELECT name, city FROM distribution_centers WHERE id = %s """, (distribution_center_id))
+                        distribution_center_details = cur.fetchone() 
+                        if distribution_center_details:
+                            distribution_center_name = distribution_center_details["name"]
+                            distribution_center_town = distribution_center_details["city"]
+                        else:
+                            distribution_center_name = ''
+                            distribution_center_town = ''
+                            pass
+                            
                         
                         if user_category_id == 1:
                             user_type_name = "Administrators"
@@ -353,6 +366,8 @@ class User():
                             "user_type": user['user_type'],
                             "user_type_name":user_type_name,
                             "user_category_id": user_category_id,
+                            "distribution_center_name":distribution_center_name,
+                            "distribution_center_town":distribution_center_town,
                             "first_name": user_details['first_name'],
                             "middle_name": user_details['middle_name'],
                             "last_name": user_details['last_name'],
@@ -376,12 +391,9 @@ class User():
                             "created_by_id": user_details['created_by']
                         }
                         response_array.append(response)
+                        
                     else:
-                        message = {'status':201,
-                            'response':response_array, 
-                            'description':'Failed to fetch user records!'
-                        }   
-                        return jsonify(message), 201
+                        pass
             
                 message = {'status':200,
                             'response':response_array, 
@@ -390,11 +402,10 @@ class User():
                 return jsonify(message), 200
             
             else:                
-                message = {'status':201,
-                            'error':'sp_a04',
+                message = {'status':404,
                             'description':'User records were not found!'
                         }   
-                return jsonify(message), 201             
+                return jsonify(message), 404             
             
         #Error handling
         except Exception as error:
