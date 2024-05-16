@@ -974,6 +974,7 @@ class Accounts():
             return message
     
     def get_cog_account(self, details):
+        #get cost of service per model
         #Get the request data
 
         if details == None:

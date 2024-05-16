@@ -72,12 +72,13 @@ class MobilePhoneCashSales():
                     return message
                 
                 #get specific phone buying price
+                
                 cur.execute("""SELECT price_per_unit FROM cash_stock_purchase_models WHERE model_id = %s AND global_id = %s """, (model_id, global_id))
                 get_phone_buying_price = cur.fetchone() 
                 if get_phone_buying_price:
                     price_per_unit = float(get_phone_buying_price["price_per_unit"])
                 else:
-                    price_per_unit = ''
+                    price_per_unit = 0
                     message = {"description":"This phone does not have global id",
                                "status":404}
                     return message
@@ -103,7 +104,7 @@ class MobilePhoneCashSales():
                 total_net_sales_amount = total_net_sales_amount + total_final_price_per_model
                 total_buying_price_amount = total_buying_price_amount + total_buyingprice_per_model
                 total_discount_amount = total_discount_amount + total_discount_amount_per_model 
-                                
+                       
                     
             status = 2 #pending approval
             created_date = Localtime().gettime()
@@ -156,15 +157,15 @@ class MobilePhoneCashSales():
                 for mobilephone_model_detail in phone_model_details:
                     
                     model_id = mobilephone_model_detail["model_id"]
-                    imei_1 = mobilephone_model_detail["imei_1"] #mobilephone_agentstock_id
-                    mobilephone_agentstock_id = phone_model_detail["mobilephone_agentstock_id"]
+                    imei_1 = mobilephone_model_detail["imei_1"] 
+                    mobilephone_agentstock_id = mobilephone_model_detail["mobilephone_agentstock_id"]
                     quantity = 1
                 
                     #get mobile phone tax percentage amount 
                     cur.execute("""SELECT vat_percent_amount FROM product_mobile_phones_models WHERE id = %s """, (model_id))
                     vat_details = cur.fetchone()
                     if vat_details:
-                        vat_percentage_amount = vat_details["vat_percent_amount"]
+                        vat_percentage_amount = float(vat_details["vat_percent_amount"])
                     else:
                         message = {"description":"This phone model does not have VAT percentage amount set",
                                    "status":404}
@@ -198,7 +199,7 @@ class MobilePhoneCashSales():
                         message = {"description":"This phone does not have global id",
                                 "status":404}
                         return message
-                
+                    
                     cur.execute("""SELECT id, price_amount, discount_amount, final_price FROM distribution_center_mobilephone_model_prices WHERE status =1 AND model_id = %s AND distribution_center_id = %s """, (model_id, distribution_center_id))
                     get_phone_model_price = cur.fetchone() 
                     if get_phone_model_price:
@@ -215,7 +216,7 @@ class MobilePhoneCashSales():
                     acc_details = {
                             "model_id":model_id
                             }
-                    
+                   
                     #fetch stock account per model 
                     get_stock_Account = Accounts().get_stock_account(acc_details)
                     if int(get_stock_Account["status"]) == 200:
@@ -262,12 +263,11 @@ class MobilePhoneCashSales():
                         ErrorLogger().logError(message)                                
                         return message
                     
-                    
                     #mobile phone device cash sales
-                    cur.execute("""INSERT INTO mobile_phone_cash_sales_model_details (mobilephone_agentstock_id, mobile_phone_cash_sales_id, global_id, model_id, imei_1, imei_2, qr_code_id, stock_account, cost_of_service_account, income_account, discount_account,   buying_price, selling_price,       discount, final_price, vat_amount, warranty_period) VALUES (%s %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""", 
+                    cur.execute("""INSERT INTO mobile_phone_cash_sales_model_details (mobilephone_agentstock_id, mobile_phone_cash_sales_id, global_id, model_id, imei_1, imei_2, qr_code_id, stock_account, cost_of_service_account, income_account, discount_account,   buying_price, selling_price,       discount, final_price, vat_amount, warranty_period) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""", 
                                                                                      (mobilephone_agentstock_id, mobile_phone_cash_sales_id, global_id, model_id, imei_1, imei_2, qr_code_id, stock_account, cost_of_service_account, income_account, discount_account, price_per_unit, price_amount, discount_amount, final_price, vat_amount, warranty_period))
                     mysql.get_db().commit()
-            
+                 
                 message = {"description":"Mobile phone cash sales was created successfully",
                         "status":200}
                 return message
@@ -323,7 +323,7 @@ class MobilePhoneCashSales():
                     total_net_sales_amount = float(sale['total_net_sales_amount'])
                     
                     device_sales_details = []
-                    cur.execute("""SELECT id, global_id, model_id, imei_1, imei_2, qr_code_id, stock_account, cost_of_service_account, income_account, discount_account, buying_price, selling_price, discount, final_price, vat_amount, warranty_period FROM mobile_phone_cash_sales_model_details WHERE id = %s """, (id))
+                    cur.execute("""SELECT id, global_id, model_id, imei_1, imei_2, qr_code_id, stock_account, cost_of_service_account, income_account, discount_account, buying_price, selling_price, discount, final_price, vat_amount, warranty_period FROM mobile_phone_cash_sales_model_details WHERE mobile_phone_cash_sales_id = %s """, (id))
                     sales_details = cur.fetchall()
                     if sales_details:
                         for sales_detail in sales_details:
@@ -445,7 +445,7 @@ class MobilePhoneCashSales():
                 total_net_sales_amount = float(sale['total_net_sales_amount'])
                 
                 device_sales_details = []
-                cur.execute("""SELECT id, global_id, model_id, imei_1, imei_2, qr_code_id, stock_account, cost_of_service_account, income_account, discount_account, buying_price, selling_price, discount, final_price, vat_amount, warranty_period FROM mobile_phone_cash_sales_model_details WHERE id = %s """, (id))
+                cur.execute("""SELECT id, global_id, model_id, imei_1, imei_2, qr_code_id, stock_account, cost_of_service_account, income_account, discount_account, buying_price, selling_price, discount, final_price, vat_amount, warranty_period FROM mobile_phone_cash_sales_model_details WHERE mobile_phone_cash_sales_id = %s """, (id))
                 sales_details = cur.fetchall()
                 if sales_details:
                     for sales_detail in sales_details:
