@@ -60,7 +60,7 @@ class DebitCredit():
                                 "layer1_id":layer1_id
                                 }
             
-            #Debit Bank Accont with deposit amount
+            #Debit Bank Account with deposit amount
             debit_trans = Transaction().debit_on_debit_account(transaction_data)
             #End of transaction posting
 
@@ -384,7 +384,6 @@ class DebitCredit():
         finally:
             cur.close()
 
-
     #API to record a debit on a debit account and a credit on a credit account transactions
     def transit_stock_approve(self, details):
         if details == None:
@@ -610,6 +609,649 @@ class DebitCredit():
                     return message
                 
                 
+        except Exception as error:
+            message = {'status':501,
+                       'error':'ci_b11',
+                       'description':'Transaction had an error. Error description ' + format(error)}
+            ErrorLogger().logError(message)
+            return message 
+        finally:
+            cur.close()
+            
+    #Sales transactions.
+    #First API. This api records a debit on a debit account and a credit on a credit account transactions. 
+    #Debit receivable account and credit revenue account with gross sales amount
+    def mobilephone_sale_debitreceivable_creditrevenue(self, details):
+        if details == None:
+            message = {'status':402,
+                       'error':'ci_b10',
+                       'description':'Request data is missing some details!'}
+            ErrorLogger().logError(message)            
+            return message
+
+        id = details["id"]
+        approved_by = details["user_id"]
+        
+        global_id = details["global_id"]
+        amount = details["amount"]
+        receivable_account = details["receivable_account"]
+        income_account = details["income_account"]
+        settlement_date = details["settlement_date"]
+        transaction_id = details["transaction_id"]
+
+        try:
+            cur = mysql.get_db().cursor()
+        except:
+            message = {'status':500,
+                       'error':'ci_b11',
+                       'description':"Couldn't connect to the Database!"}
+            ErrorLogger().logError(message)
+            return message       
+        try: 
+                
+            #Start of gross sales transaction posting - Debit Receivable Account with gross sales amount
+            transaction_name = 'Mobile Phone Sales'
+            description = 'Mobile phone sales of Ksh. ' + str(amount) + ' Transaction Id ' + str(transaction_id)
+          
+            trans_uuid_ = str(uuid.uuid4())
+            trans_uuid = trans_uuid_.replace("-", "" )
+            trans_uuid = str(trans_uuid)
+            layer1_id = 't0' + str(trans_uuid[-12:])
+
+            transaction_data = {"global_id":global_id, 
+                                "entry_id":id, 
+                                "sub_entry_id":transaction_id, 
+                                "type":11,
+                                "account_number":receivable_account, 
+                                "amount":amount, 
+                                "transaction_name":transaction_name,
+                                "description":description, 
+                                "settlement_date":settlement_date,
+                                "layer1_id":layer1_id
+                                }
+            
+            #Debit Receivable Account with gross sales amount
+            debit_trans = Transaction().debit_on_debit_account(transaction_data)
+            #End of transaction posting
+
+            
+            #Start of gross sales transaction posting - Credit Income Account gross sales amount
+        
+            transaction_name = 'Mobile Phone Sales'
+            description = 'Mobile phone sales of Ksh. ' + str(amount) + ' Transaction Id ' + str(transaction_id)
+
+            transaction_data = {"global_id":global_id, 
+                                "entry_id":id, 
+                                "sub_entry_id":transaction_id,
+                                "type":12,
+                                "account_number":income_account, 
+                                "amount":amount, 
+                                "transaction_name":transaction_name,
+                                "description":description, 
+                                "settlement_date":settlement_date,
+                                "layer1_id":layer1_id
+                                }
+            
+            #Credit Income Account with gross sales amount
+            credit_trans = Transaction().credit_on_credit_account(transaction_data)
+            #End of transaction posting
+            
+            if ((int(debit_trans["status"]) == 200) and (int(credit_trans["status"]) == 200)):
+                dateapproved = Localtime().gettime()
+                
+                message = {"receivable_account_transaction_status":debit_trans,
+                           "income_account_transaction_status":credit_trans,
+                           "description":"Gross sales transaction was posted successfully!",
+                           "status":200}
+                return message  
+            
+            else:    
+                #Reverse the failed transaction
+                if int(debit_trans["status"]) == 200 and int(credit_trans["status"]) != 200:
+                    #Rollback this debit transaction
+                    data = debit_trans["data"]
+                    trans_id = debit_trans["data"]["trans_id"]
+                    amount = float(debit_trans["data"]["amount"])
+                    if amount >0 and trans_id is not None:
+                        #Delete this specific debit transaction
+                        rollback_debit_trans = Transaction().debit_on_debit_account_rollback(data)
+                    else:
+                        pass
+                
+                if int(credit_trans["status"]) == 200 and int(debit_trans["status"]) != 200:
+                    #Rollback this credit transaction
+
+                    data = credit_trans["data"]
+                    trans_id = credit_trans["data"]["trans_id"]
+                    amount = float(credit_trans["data"]["amount"])
+                    if amount >0 and trans_id is not None:
+                        #Delete this specific credit transaction
+                        rollback_credit_trans = Transaction().credit_on_credit_account_rollback(data)
+                    else:
+                        pass
+                            
+
+                message = {
+                    "status":201,
+                    "receivable_account_transaction_status":debit_trans,
+                    "income_account_transaction_status":credit_trans}
+                return message
+            
+        except Exception as error:
+            message = {'status':501,
+                       'error':'ci_b11',
+                       'description':'Transaction had an error. Error description ' + format(error)}
+            ErrorLogger().logError(message)
+            return message 
+        finally:
+            cur.close()
+            
+            
+    #Sales transactions.
+    #Second API. This api records a debit on a debit account and a credit on a debit account transactions. 
+    #Debit bank account and credit receivable account with net sales amount
+    def mobilephone_sale_debitbank_creditreceivable(self, details):
+        if details == None:
+            message = {'status':402,
+                       'error':'ci_b10',
+                       'description':'Request data is missing some details!'}
+            ErrorLogger().logError(message)            
+            return message
+
+        id = details["id"]
+        approved_by = details["user_id"]
+        
+        global_id = details["global_id"]
+        amount = details["amount"]
+        bank_account = details["bank_account"]
+        receivable_account = details["receivable_account"]
+        settlement_date = details["settlement_date"]
+        transaction_id = details["transaction_id"]
+
+        try:
+            cur = mysql.get_db().cursor()
+        except:
+            message = {'status':500,
+                       'error':'ci_b11',
+                       'description':"Couldn't connect to the Database!"}
+            ErrorLogger().logError(message)
+            return message       
+        try: 
+                
+            #Start of net sales transaction posting - Debit Bank Account with net sales amount
+            transaction_name = 'Mobile Phone Sales'
+            description = 'Mobile phone net sales of Ksh. ' + str(amount) + ' Transaction Id ' + str(transaction_id)
+          
+            trans_uuid_ = str(uuid.uuid4())
+            trans_uuid = trans_uuid_.replace("-", "" )
+            trans_uuid = str(trans_uuid)
+            layer1_id = 't0' + str(trans_uuid[-12:])
+
+            transaction_data = {"global_id":global_id, 
+                                "entry_id":id, 
+                                "sub_entry_id":transaction_id, 
+                                "type":13,
+                                "account_number":bank_account, 
+                                "amount":amount, 
+                                "transaction_name":transaction_name,
+                                "description":description, 
+                                "settlement_date":settlement_date,
+                                "layer1_id":layer1_id
+                                }
+            
+            #Debit Bank Account with net sales amount
+            debit_trans = Transaction().debit_on_debit_account(transaction_data)
+            #End of transaction posting
+
+            
+            #Start of net sales transaction posting - Credit Receivable account with net sales amount
+        
+            transaction_name = 'Mobile Phone Sales'
+            description = 'Mobile phone net sales of Ksh. ' + str(amount) + ' Transaction Id ' + str(transaction_id)
+
+            transaction_data = {"global_id":global_id, 
+                                "entry_id":id, 
+                                "sub_entry_id":transaction_id,
+                                "type":14,
+                                "account_number":receivable_account, 
+                                "amount":amount, 
+                                "transaction_name":transaction_name,
+                                "description":description, 
+                                "settlement_date":settlement_date,
+                                "layer1_id":layer1_id
+                                }
+            
+            #Credit Receivable account with net sales amount
+            credit_trans = Transaction().credit_on_debit_account(transaction_data)
+            #End of transaction posting
+            
+            if ((int(debit_trans["status"]) == 200) and (int(credit_trans["status"]) == 200)):
+                dateapproved = Localtime().gettime()
+                
+                message = {"receivable_account_transaction_status":debit_trans,
+                           "income_account_transaction_status":credit_trans,
+                           "description":"Net sales transaction was posted successfully!",
+                           "status":200}
+                return message  
+            
+            else:    
+                #Reverse the failed transaction
+                if int(debit_trans["status"]) == 200 and int(credit_trans["status"]) != 200:
+                    #Rollback this debit transaction
+                    data = debit_trans["data"]
+                    trans_id = debit_trans["data"]["trans_id"]
+                    amount = float(debit_trans["data"]["amount"])
+                    if amount >0 and trans_id is not None:
+                        #Delete this specific debit transaction
+                        rollback_debit_trans = Transaction().debit_on_debit_account_rollback(data)
+                    else:
+                        pass
+                
+                if int(credit_trans["status"]) == 200 and int(debit_trans["status"]) != 200:
+                    #Rollback this credit transaction
+
+                    data = credit_trans["data"]
+                    trans_id = credit_trans["data"]["trans_id"]
+                    amount = float(credit_trans["data"]["amount"])
+                    if amount >0 and trans_id is not None:
+                        #Delete this specific credit transaction
+                        rollback_credit_trans = Transaction().credit_on_debit_account_rollback(data)
+                    else:
+                        pass
+                            
+
+                message = {
+                    "status":201,
+                    "bank_account_transaction_status":debit_trans,
+                    "receivable_account_transaction_status":credit_trans}
+                return message
+            
+        except Exception as error:
+            message = {'status':501,
+                       'error':'ci_b11',
+                       'description':'Transaction had an error. Error description ' + format(error)}
+            ErrorLogger().logError(message)
+            return message 
+        finally:
+            cur.close()
+            
+    #Sales transactions.
+    #Third API. This api records a debit on a debit account and a credit on a credit account transactions. 
+    #Debit tax expense account and credit tax payable account with tax amount
+    def mobilephone_sale_debittaxepense_credittaxpayable(self, details):
+        if details == None:
+            message = {'status':402,
+                       'error':'ci_b10',
+                       'description':'Request data is missing some details!'}
+            ErrorLogger().logError(message)            
+            return message
+
+        id = details["id"]
+        approved_by = details["user_id"]
+        
+        global_id = details["global_id"]
+        amount = details["amount"]
+        tax_expense_account = details["tax_expense_account"]
+        tax_payable_account = details["tax_payable_account"]
+        settlement_date = details["settlement_date"]
+        transaction_id = details["transaction_id"]
+
+        try:
+            cur = mysql.get_db().cursor()
+        except:
+            message = {'status':500,
+                       'error':'ci_b11',
+                       'description':"Couldn't connect to the Database!"}
+            ErrorLogger().logError(message)
+            return message       
+        try: 
+                
+            #Start of tax expense transaction posting - Debit Tax Expense Account with tax amount
+            transaction_name = 'Mobile Phone Sales'
+            description = 'Mobile phone tax of Ksh. ' + str(amount) + ' Transaction Id ' + str(transaction_id)
+          
+            trans_uuid_ = str(uuid.uuid4())
+            trans_uuid = trans_uuid_.replace("-", "" )
+            trans_uuid = str(trans_uuid)
+            layer1_id = 't0' + str(trans_uuid[-12:])
+
+            transaction_data = {"global_id":global_id, 
+                                "entry_id":id, 
+                                "sub_entry_id":transaction_id, 
+                                "type":15,
+                                "account_number":tax_expense_account, 
+                                "amount":amount, 
+                                "transaction_name":transaction_name,
+                                "description":description, 
+                                "settlement_date":settlement_date,
+                                "layer1_id":layer1_id
+                                }
+            
+            #Debit Tax Expense Account with tax amount
+            debit_trans = Transaction().debit_on_debit_account(transaction_data)
+            #End of transaction posting
+
+            
+            #Start of tax payable transaction posting - Credit Tax Payable account with tax amount
+        
+            transaction_name = 'Mobile Phone Sales'
+            description = 'Mobile phone tax of Ksh. ' + str(amount) + ' Transaction Id ' + str(transaction_id)
+
+            transaction_data = {"global_id":global_id, 
+                                "entry_id":id, 
+                                "sub_entry_id":transaction_id,
+                                "type":16,
+                                "account_number":tax_payable_account, 
+                                "amount":amount, 
+                                "transaction_name":transaction_name,
+                                "description":description, 
+                                "settlement_date":settlement_date,
+                                "layer1_id":layer1_id
+                                }
+            
+            #Credit Tax Payable account with tax amount
+            credit_trans = Transaction().credit_on_credit_account(transaction_data)
+            #End of transaction posting
+            
+            if ((int(debit_trans["status"]) == 200) and (int(credit_trans["status"]) == 200)):
+                dateapproved = Localtime().gettime()
+                
+                message = {"tax_expense_account_transaction_status":debit_trans,
+                           "tax_payable_account_transaction_status":credit_trans,
+                           "description":"Tax transaction was posted successfully!",
+                           "status":200}
+                return message  
+            
+            else:    
+                #Reverse the failed transaction
+                if int(debit_trans["status"]) == 200 and int(credit_trans["status"]) != 200:
+                    #Rollback this debit transaction
+                    data = debit_trans["data"]
+                    trans_id = debit_trans["data"]["trans_id"]
+                    amount = float(debit_trans["data"]["amount"])
+                    if amount >0 and trans_id is not None:
+                        #Delete this specific debit transaction
+                        rollback_debit_trans = Transaction().debit_on_debit_account_rollback(data)
+                    else:
+                        pass
+                
+                if int(credit_trans["status"]) == 200 and int(debit_trans["status"]) != 200:
+                    #Rollback this credit transaction
+
+                    data = credit_trans["data"]
+                    trans_id = credit_trans["data"]["trans_id"]
+                    amount = float(credit_trans["data"]["amount"])
+                    if amount >0 and trans_id is not None:
+                        #Delete this specific credit transaction
+                        rollback_credit_trans = Transaction().credit_on_credit_account_rollback(data)
+                    else:
+                        pass
+                            
+
+                message = {
+                    "status":201,
+                    "tax_expense_account_transaction_status":debit_trans,
+                    "tax_payable_account_transaction_status":credit_trans}
+                return message
+            
+        except Exception as error:
+            message = {'status':501,
+                       'error':'ci_b11',
+                       'description':'Transaction had an error. Error description ' + format(error)}
+            ErrorLogger().logError(message)
+            return message 
+        finally:
+            cur.close()
+            
+            
+    #Sales transactions.
+    #Fourth API. This api records a debit on a debit account and a credit on a debit account transactions. 
+    #Debit Cost of Service account and credit Stock account with buying price amount
+    def mobilephone_sale_debitcog_creditstock(self, details):
+        if details == None:
+            message = {'status':402,
+                       'error':'ci_b10',
+                       'description':'Request data is missing some details!'}
+            ErrorLogger().logError(message)            
+            return message
+
+        id = details["id"]
+        approved_by = details["user_id"]
+        
+        global_id = details["global_id"]
+        amount = details["amount"]
+        cost_of_service_account = details["cost_of_service_account"]
+        stock_account = details["stock_account"]
+        settlement_date = details["settlement_date"]
+        transaction_id = details["transaction_id"]
+
+        try:
+            cur = mysql.get_db().cursor()
+        except:
+            message = {'status':500,
+                       'error':'ci_b11',
+                       'description':"Couldn't connect to the Database!"}
+            ErrorLogger().logError(message)
+            return message       
+        try: 
+                
+            #Start of cog transaction posting - Debit cost of service Account with buying price amount
+            transaction_name = 'Mobile Phone Sales'
+            description = 'Mobile phone cost of service of Ksh. ' + str(amount) + ' Transaction Id ' + str(transaction_id)
+          
+            trans_uuid_ = str(uuid.uuid4())
+            trans_uuid = trans_uuid_.replace("-", "" )
+            trans_uuid = str(trans_uuid)
+            layer1_id = 't0' + str(trans_uuid[-12:])
+
+            transaction_data = {"global_id":global_id, 
+                                "entry_id":id, 
+                                "sub_entry_id":transaction_id, 
+                                "type":17,
+                                "account_number":cost_of_service_account, 
+                                "amount":amount, 
+                                "transaction_name":transaction_name,
+                                "description":description, 
+                                "settlement_date":settlement_date,
+                                "layer1_id":layer1_id
+                                }
+            
+            #Debit COG Account with buying price amount
+            debit_trans = Transaction().debit_on_debit_account(transaction_data)
+            #End of transaction posting
+
+            
+            #Start of stock account transaction posting - Credit stock account with buying price amount
+        
+            transaction_name = 'Mobile Phone Sales'
+            description = 'Mobile phone stock value of Ksh. ' + str(amount) + ' Transaction Id ' + str(transaction_id)
+
+            transaction_data = {"global_id":global_id, 
+                                "entry_id":id, 
+                                "sub_entry_id":transaction_id,
+                                "type":18,
+                                "account_number":stock_account, 
+                                "amount":amount, 
+                                "transaction_name":transaction_name,
+                                "description":description, 
+                                "settlement_date":settlement_date,
+                                "layer1_id":layer1_id
+                                }
+            
+            #Credit stock account with price amount
+            credit_trans = Transaction().credit_on_debit_account(transaction_data)
+            #End of transaction posting
+            
+            if ((int(debit_trans["status"]) == 200) and (int(credit_trans["status"]) == 200)):
+                dateapproved = Localtime().gettime()
+                
+                message = {"cog_account_transaction_status":debit_trans,
+                           "stock_account_transaction_status":credit_trans,
+                           "description":"Stock transaction was posted successfully!",
+                           "status":200}
+                return message  
+            
+            else:    
+                #Reverse the failed transaction
+                if int(debit_trans["status"]) == 200 and int(credit_trans["status"]) != 200:
+                    #Rollback this debit transaction
+                    data = debit_trans["data"]
+                    trans_id = debit_trans["data"]["trans_id"]
+                    amount = float(debit_trans["data"]["amount"])
+                    if amount >0 and trans_id is not None:
+                        #Delete this specific debit transaction
+                        rollback_debit_trans = Transaction().debit_on_debit_account_rollback(data)
+                    else:
+                        pass
+                
+                if int(credit_trans["status"]) == 200 and int(debit_trans["status"]) != 200:
+                    #Rollback this credit transaction
+
+                    data = credit_trans["data"]
+                    trans_id = credit_trans["data"]["trans_id"]
+                    amount = float(credit_trans["data"]["amount"])
+                    if amount >0 and trans_id is not None:
+                        #Delete this specific credit transaction
+                        rollback_credit_trans = Transaction().credit_on_debit_account_rollback(data)
+                    else:
+                        pass
+                            
+
+                message = {
+                    "status":201,
+                    "cog_account_transaction_status":debit_trans,
+                    "stock_account_transaction_status":credit_trans}
+                return message
+            
+        except Exception as error:
+            message = {'status':501,
+                       'error':'ci_b11',
+                       'description':'Transaction had an error. Error description ' + format(error)}
+            ErrorLogger().logError(message)
+            return message 
+        finally:
+            cur.close()
+            
+            
+    #Sales transactions.
+    #Fifth API. This api records a debit on a debit account and a credit on a debit account transactions. 
+    #Debit Discount expense account and credit Receivable account with discount amount
+    def mobilephone_sale_debitdiscount_creditreceivable(self, details):
+        if details == None:
+            message = {'status':402,
+                       'error':'ci_b10',
+                       'description':'Request data is missing some details!'}
+            ErrorLogger().logError(message)            
+            return message
+
+        id = details["id"]
+        approved_by = details["user_id"]
+        
+        global_id = details["global_id"]
+        amount = details["amount"]
+        discount_account = details["discount_account"]
+        receivable_account = details["receivable_account"]
+        settlement_date = details["settlement_date"]
+        transaction_id = details["transaction_id"]
+
+        try:
+            cur = mysql.get_db().cursor()
+        except:
+            message = {'status':500,
+                       'error':'ci_b11',
+                       'description':"Couldn't connect to the Database!"}
+            ErrorLogger().logError(message)
+            return message       
+        try: 
+                
+            #Start of cog transaction posting - Debit discount Account with discount amount
+            transaction_name = 'Mobile Phone Sales'
+            description = 'Mobile phone discount of Ksh. ' + str(amount) + ' Transaction Id ' + str(transaction_id)
+          
+            trans_uuid_ = str(uuid.uuid4())
+            trans_uuid = trans_uuid_.replace("-", "" )
+            trans_uuid = str(trans_uuid)
+            layer1_id = 't0' + str(trans_uuid[-12:])
+
+            transaction_data = {"global_id":global_id, 
+                                "entry_id":id, 
+                                "sub_entry_id":transaction_id, 
+                                "type":19,
+                                "account_number":discount_account, 
+                                "amount":amount, 
+                                "transaction_name":transaction_name,
+                                "description":description, 
+                                "settlement_date":settlement_date,
+                                "layer1_id":layer1_id
+                                }
+            
+            #Debit discount account with discount amount
+            debit_trans = Transaction().debit_on_debit_account(transaction_data)
+            #End of transaction posting
+
+            
+            #Start of receivable account transaction posting - Credit receivable account with discount amount
+        
+            transaction_name = 'Mobile Phone Sales'
+            description = 'Mobile phone discount value of Ksh. ' + str(amount) + ' Transaction Id ' + str(transaction_id)
+
+            transaction_data = {"global_id":global_id, 
+                                "entry_id":id, 
+                                "sub_entry_id":transaction_id,
+                                "type":20,
+                                "account_number":receivable_account, 
+                                "amount":amount, 
+                                "transaction_name":transaction_name,
+                                "description":description, 
+                                "settlement_date":settlement_date,
+                                "layer1_id":layer1_id
+                                }
+            
+            #Credit receivable account with discount amount
+            credit_trans = Transaction().credit_on_debit_account(transaction_data)
+            #End of transaction posting
+            
+            if ((int(debit_trans["status"]) == 200) and (int(credit_trans["status"]) == 200)):
+                dateapproved = Localtime().gettime()
+                
+                message = {"discount_account_transaction_status":debit_trans,
+                           "receivable_account_transaction_status":credit_trans,
+                           "description":"Discount transaction was posted successfully!",
+                           "status":200}
+                return message  
+            
+            else:    
+                #Reverse the failed transaction
+                if int(debit_trans["status"]) == 200 and int(credit_trans["status"]) != 200:
+                    #Rollback this debit transaction
+                    data = debit_trans["data"]
+                    trans_id = debit_trans["data"]["trans_id"]
+                    amount = float(debit_trans["data"]["amount"])
+                    if amount >0 and trans_id is not None:
+                        #Delete this specific debit transaction
+                        rollback_debit_trans = Transaction().debit_on_debit_account_rollback(data)
+                    else:
+                        pass
+                
+                if int(credit_trans["status"]) == 200 and int(debit_trans["status"]) != 200:
+                    #Rollback this credit transaction
+
+                    data = credit_trans["data"]
+                    trans_id = credit_trans["data"]["trans_id"]
+                    amount = float(credit_trans["data"]["amount"])
+                    if amount >0 and trans_id is not None:
+                        #Delete this specific credit transaction
+                        rollback_credit_trans = Transaction().credit_on_debit_account_rollback(data)
+                    else:
+                        pass
+                            
+
+                message = {
+                    "status":201,
+                    "discount_account_transaction_status":debit_trans,
+                    "receivable_account_transaction_status":credit_trans}
+                return message
+            
         except Exception as error:
             message = {'status':501,
                        'error':'ci_b11',

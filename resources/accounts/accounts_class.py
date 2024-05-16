@@ -896,7 +896,159 @@ class Accounts():
             return message
         finally:
             cur.close()
-            
+         
+    def get_income_account(self, details):
+        #Get the request data
+
+        if details == None:
+            message = {"description":"Transaction is missing some details!", 
+                       "status": 402}
+            return message
+        
+        model_id = details["model_id"]
+        
+        # Open A connection to the database
+        try:
+            cur =  mysql.get_db().cursor()
+        except:
+            message = {"description":"Couldn't connect to the Database!", 
+                       "status": 500}
+            return message
+        
+        #Get product model income account          
+        cur.execute("""SELECT number FROM accounts WHERE status =1 AND type =18 AND owner_id = %s""", (model_id))
+        get_income_account = cur.fetchone() 
+        if get_income_account:
+            income_account = get_income_account["number"]
+            message =  {'status':200,
+                        'data':income_account,                             
+                        }
+            return message
+        
+        else:
+            income_account = 0
+            message = {'status':402,
+                        'error':'cr_d08',
+                        'data':income_account,
+                        'description':'Task was not successful. Income account is missing',                               
+                        }
+            ErrorLogger().logError(message) 
+            return message
+    
+    def get_stock_account(self, details):
+        #Get the request data
+
+        if details == None:
+            message = {"description":"Transaction is missing some details!", 
+                       "status": 402}
+            return message
+        
+        model_id = details["model_id"]
+        
+        # Open A connection to the database
+        try:
+            cur =  mysql.get_db().cursor()
+        except:
+            message = {"description":"Couldn't connect to the Database!", 
+                       "status": 500}
+            return message
+        
+        #Get product model stock account          
+        cur.execute("""SELECT number FROM accounts WHERE status =1 AND type =2 AND owner_id = %s""", (model_id))
+        get_stock_account = cur.fetchone() 
+        if get_stock_account:
+            stock_account = get_stock_account["number"]
+            message =  {'status':200,
+                        'data':stock_account,                             
+                        }
+            return message
+        
+        else:
+            stock_account = 0
+            message = {'status':402,
+                        'error':'cr_d08',
+                        'data':stock_account,
+                        'description':'Task was not successful. Stock account is missing',                               
+                        }
+            ErrorLogger().logError(message) 
+            return message
+    
+    def get_cog_account(self, details):
+        #Get the request data
+
+        if details == None:
+            message = {"description":"Transaction is missing some details!", 
+                       "status": 402}
+            return message
+        
+        model_id = details["model_id"]
+        
+        # Open A connection to the database
+        try:
+            cur =  mysql.get_db().cursor()
+        except:
+            message = {"description":"Couldn't connect to the Database!", 
+                       "status": 500}
+            return message
+        
+        #Get product model cog account          
+        cur.execute("""SELECT number FROM accounts WHERE status =1 AND type =21 AND owner_id = %s""", (model_id))
+        get_cog_account = cur.fetchone() 
+        if get_cog_account:
+            cog_account = get_cog_account["number"]
+            message =  {'status':200,
+                        'data':cog_account,                             
+                        }
+            return message
+        
+        else:
+            cog_account = 0
+            message = {'status':402,
+                        'error':'cr_d08',
+                        'data':cog_account,
+                        'description':'Task was not successful. Cog account is missing',                               
+                        }
+            ErrorLogger().logError(message) 
+            return message
+        
+    def get_discount_account(self, details):
+        #Get the request data
+
+        if details == None:
+            message = {"description":"Transaction is missing some details!", 
+                       "status": 402}
+            return message
+        
+        model_id = details["model_id"]
+        
+        # Open A connection to the database
+        try:
+            cur =  mysql.get_db().cursor()
+        except:
+            message = {"description":"Couldn't connect to the Database!", 
+                       "status": 500}
+            return message
+        
+        #Get product model discount account          
+        cur.execute("""SELECT number FROM accounts WHERE status =1 AND type =19 AND owner_id = %s""", (model_id))
+        get_discount_account = cur.fetchone() 
+        if get_discount_account:
+            discount_account = get_discount_account["number"]
+            message =  {'status':200,
+                        'data':discount_account,                             
+                        }
+            return message
+        
+        else:
+            discount_account = 0
+            message = {'status':402,
+                        'error':'cr_d08',
+                        'data':discount_account,
+                        'description':'Task was not successful. Discount account is missing',                               
+                        }
+            ErrorLogger().logError(message) 
+            return message
+        
     def b2c_account(self):
 
         # Open A connection to the database

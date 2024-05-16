@@ -17,6 +17,7 @@ class Products():
         
         product_sub_category_id = validated_data["product_sub_category_id"]
         name = validated_data["phone_name"]
+        vat_percent_amount = validated_data["vat_percent_amount"] #Vat amount is 16%
         ram = validated_data["ram"]
         internal_storage = validated_data["internal_storage"]
         main_camera = validated_data["main_camera"]
@@ -46,8 +47,8 @@ class Products():
             created_by = user['id']
 
             #store supplier details request
-            cur.execute("""INSERT INTO product_mobile_phones_models (product_sub_category_id, name, ram, internal_storage, main_camera, front_camera, display, processor, operating_system, connectivity, colors, battery, image_path, date_created, created_by, status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""", 
-                                                                    (product_sub_category_id, name, ram, internal_storage, main_camera, front_camera, display, processor, operating_system, connectivity, colors, battery, image_path, date_created, created_by, status))
+            cur.execute("""INSERT INTO product_mobile_phones_models (product_sub_category_id, vat_percent_amount, name, ram, internal_storage, main_camera, front_camera, display, processor, operating_system, connectivity, colors, battery, image_path, date_created, created_by, status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""", 
+                                                                    (product_sub_category_id, vat_percent_amount, name, ram, internal_storage, main_camera, front_camera, display, processor, operating_system, connectivity, colors, battery, image_path, date_created, created_by, status))
             mysql.get_db().commit()
             cur.close()
             
@@ -88,7 +89,7 @@ class Products():
         try:
             status = request_data["status"]
         
-            cur.execute("""SELECT id, product_sub_category_id, name, ram, internal_storage, main_camera, front_camera, display, processor, operating_system, connectivity, colors, battery, image_path, date_created, created_by FROM product_mobile_phones_models WHERE status = %s """, (status))
+            cur.execute("""SELECT id, product_sub_category_id, vat_percent_amount, name, ram, internal_storage, main_camera, front_camera, display, processor, operating_system, connectivity, colors, battery, image_path, date_created, created_by FROM product_mobile_phones_models WHERE status = %s """, (status))
             phone_models = cur.fetchall()            
             if phone_models:
                 mobile_phone_models = []
@@ -96,6 +97,7 @@ class Products():
                 for phone_model in phone_models:
                     response = {
                         "id": phone_model['id'],
+                        "vat_percent_amount": float(phone_model['vat_percent_amount']),
                         "product_sub_category_id": phone_model['product_sub_category_id'],
                         "name": phone_model['name'],
                         "ram": phone_model['ram'],
@@ -172,6 +174,7 @@ class Products():
                 trans = {
                     "id": phone_model['id'],
                     "name": phone_model['name'],   
+                    "vat_percent_amount": float(phone_model['vat_percent_amount']),
                     "ram": phone_model['ram'],
                     "internal_storage": phone_model['internal_storage'],
                     "main_camera": phone_model['main_camera'],
@@ -308,6 +311,37 @@ class Products():
                 accountName = model_name
                 type_Id = 19 #Discount expense account type
                 categoryId = 23 #Discount expense account category 
+                sub_category = 0
+                mainaccount = 0
+                openingBalance = 0     
+                notes = ''
+                owner_id = id
+                entity_id = 0
+                description = ''
+                referenceNumber = ''
+                
+                account = {
+                    "name":accountName, 
+                    "accountType":type_Id, 
+                    "accountCategory":categoryId, 
+                    "accountSubCategory":sub_category,
+                    "main_account":mainaccount,
+                    "opening_balance":openingBalance, 
+                    "owner_id":owner_id, 
+                    "entity_id":entity_id, 
+                    "notes":notes, 
+                    "description":description, 
+                    "reference_number":referenceNumber,
+                    "user_id":created_by,
+                    "status":1}
+            
+                discount_account_res = Accounting().create_new_account(account)
+                
+                
+                #Create model income account
+                accountName = model_name
+                type_Id = 18 #Revenue / Income account type
+                categoryId = 22 #Income account category 
                 sub_category = 0
                 mainaccount = 0
                 openingBalance = 0     

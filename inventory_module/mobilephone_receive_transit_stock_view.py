@@ -23,6 +23,7 @@ class ReceiveTransitStock():
         imei_1 = validated_data["imei_1"] 
         imei_2 = validated_data["imei_2"] 
         qr_code_id = validated_data["qr_code_id"] 
+        warranty_period = validated_data["warranty_period"] 
         received_date = validated_data["received_date"]     
         remarks = validated_data["remarks"] 
         
@@ -54,8 +55,8 @@ class ReceiveTransitStock():
                 return message
                 
             #receive stock on transit
-            cur.execute("""INSERT INTO mobile_phones_transit_stock_received (global_id, products_in_transit_id, distribution_center_id, model_id, imei_1, imei_2, qr_code_id, received_date, stock_state, remarks, created_date, created_by, status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""", 
-                                                                            (global_id, products_in_transit_id, distribution_center_id, model_id, imei_1, imei_2, qr_code_id, received_date, stock_state, remarks, created_date, created_by, status))
+            cur.execute("""INSERT INTO mobile_phones_transit_stock_received (global_id, products_in_transit_id, distribution_center_id, model_id, imei_1, imei_2, qr_code_id, warranty_period, received_date, stock_state, remarks, created_date, created_by, status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""", 
+                                                                            (global_id, products_in_transit_id, distribution_center_id, model_id, imei_1, imei_2, qr_code_id, warranty_period, received_date, stock_state, remarks, created_date, created_by, status))
             mysql.get_db().commit()
             rowcount = cur.rowcount
             if rowcount:
@@ -101,7 +102,7 @@ class ReceiveTransitStock():
         try:
             status = request_data["status"]
             
-            cur.execute("""SELECT id, global_id, products_in_transit_id, distribution_center_id, model_id, imei_1, imei_2, qr_code_id, received_date, stock_state, remarks, created_date, created_by FROM mobile_phones_transit_stock_received WHERE status = %s """, (status))
+            cur.execute("""SELECT id, global_id, products_in_transit_id, distribution_center_id, model_id, imei_1, imei_2, qr_code_id, warranty_period, received_date, stock_state, remarks, created_date, created_by FROM mobile_phones_transit_stock_received WHERE status = %s """, (status))
             products_received = cur.fetchall()            
             if products_received:
                 response_array = []
@@ -114,6 +115,7 @@ class ReceiveTransitStock():
                     imei_1 = transit["imei_1"]
                     imei_2 = transit["imei_2"]
                     qr_code_id = transit["qr_code_id"]
+                    warranty_period = transit["warranty_period"]
                     received_date = transit["received_date"]
                     remarks = transit["remarks"]
                     created_date = transit["created_date"]
@@ -135,6 +137,7 @@ class ReceiveTransitStock():
                         "imei_1": imei_1,
                         "imei_2": imei_2,
                         "qr_code_id": qr_code_id,
+                        "warranty_period":warranty_period,
                         "received_date":received_date,
                         "remarks": remarks,
                         "state":this_stock_state,
@@ -191,7 +194,7 @@ class ReceiveTransitStock():
             return message, 500
                 
         try:
-            cur.execute("""SELECT global_id, products_in_transit_id, distribution_center_id, model_id, imei_1, imei_2, qr_code_id, received_date, stock_state, remarks, created_date, created_by FROM mobile_phones_transit_stock_received WHERE id = %s """, (id))
+            cur.execute("""SELECT global_id, products_in_transit_id, distribution_center_id, model_id, imei_1, imei_2, qr_code_id, warranty_period, received_date, stock_state, remarks, created_date, created_by FROM mobile_phones_transit_stock_received WHERE id = %s """, (id))
             product_received = cur.fetchone()            
             if product_received:
             
@@ -202,6 +205,7 @@ class ReceiveTransitStock():
                 imei_1 = product_received["imei_1"]
                 imei_2 = product_received["imei_2"]
                 qr_code_id = product_received["qr_code_id"]
+                warranty_period = product_received["warranty_period"]
                 received_date = product_received["received_date"]
                 remarks = product_received["remarks"]
                 created_date = product_received["created_date"]
@@ -223,6 +227,7 @@ class ReceiveTransitStock():
                     "imei_1": imei_1,
                     "imei_2": imei_2,
                     "qr_code_id": qr_code_id,
+                    "warranty_period":warranty_period,
                     "received_date":received_date,
                     "remarks": remarks,
                     "state":this_stock_state,
