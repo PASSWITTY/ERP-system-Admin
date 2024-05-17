@@ -88,15 +88,28 @@ class DistributionCenter():
                 
         try:
             status = request_data["status"]
-            
+            number = 0
             cur.execute("""SELECT id, name, address, city, building, shop_number, physical_location, country, county, postal_code, mobile_number, telephone_number, email, distribution_center_type_id, region, notes, created_date, created_by FROM distribution_centers WHERE status = %s """, (status))
             centers = cur.fetchall()            
             if centers:
                 response_array = []
+                number = number + 1
                 
                 for center in centers:
+                    
+                    created_by_id = center['created_by']
+                    cur.execute("""SELECT id, first_name, last_name FROM user_details WHERE user_id = %s """, (created_by_id))
+                    user_details = cur.fetchone()  
+                    if user_details:
+                        first_name = user_details["first_name"]
+                        last_name = user_details["last_name"]
+                        user_name = first_name + '' + last_name
+                    else:
+                        user_name = ''
+                    
                     response = {
                         "id": center['id'],
+                        "number":number,
                         "name": center['name'],
                         "address": center['address'],
                         "city": center['city'],
@@ -113,7 +126,8 @@ class DistributionCenter():
                         "region": center['region'],
                         "notes": center['notes'],
                         "created_date": center['created_date'],
-                        "created_by_id": center['created_by']
+                        "created_by_id": center['created_by'],
+                        "user_name":user_name
                     }
                     response_array.append(response)
             
@@ -257,5 +271,60 @@ class DistributionCenter():
         finally:
             cur.close()
 
-     
-   
+    def list_distribution_center_types(self, user):
+        
+        request_data = request.get_json() 
+        
+        if request_data == None:
+            message = {'status':402,
+                       'error':'sp_a03',
+                       'description':'Request data is missing some details!'}
+            ErrorLogger().logError(message)
+            return jsonify(message)
+       
+        try:
+            cur = mysql.get_db().cursor()
+                    
+        except:
+            message = {'status':500,
+                        'error':'sp_a14',
+                        'description':"Couldn't connect to the Database!"}
+            ErrorLogger().logError(message)
+            return message
+                
+        try:
+            status = request_data["status"]
+            
+            cur.execute("""SELECT id, name, date_created FROM distribution_center_types WHERE status = %s """, (status))
+            centers = cur.fetchall()            
+            if centers:
+                response_array = []
+                
+                for center in centers:
+                    response = {
+                        "id": center['id'],
+                        "name": center['name'],
+                        "date_created": center['date_created']
+                    }
+                    response_array.append(response)
+            
+                message = {'status':200,
+                            'response':response_array, 
+                            'description':'Distribution center type records were fetched successfully!'
+                        }   
+                return jsonify(message), 200
+            
+            else:                
+                message = {'status':201,
+                            'error':'sp_a04',
+                            'description':'Failed to fetch Distribution center types!'
+                        }   
+                return jsonify(message), 201             
+            
+        #Error handling
+        except Exception as error:
+            message = {'status':501,
+                       'error':'sp_a05',
+                       'description':'Failed to retrieve Distribution center record from database.' + format(error)}
+            ErrorLogger().logError(message),
+            return jsonify(message), 501 

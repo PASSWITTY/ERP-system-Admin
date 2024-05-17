@@ -29,6 +29,12 @@ def approve_distribution_center():
     user = current_user
     return DistributionCenter().approve_distribution_center(user)
 
+@distribution_center_bp.route("/list-distribution-center-types", methods=["POST"])
+@jwt_required()
+def list_distribution_center_types():
+    user = current_user
+    return DistributionCenter().list_distribution_center_types(user)
+
 
 
 
