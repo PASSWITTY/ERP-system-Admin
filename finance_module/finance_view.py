@@ -19,7 +19,7 @@ class Finance():
   
         bankAccount = request_data["bank_account_number"]
         shareholderAccount = request_data["shareholder_account_number"]
-        amount = float(request_data["amount"])
+        amount =  float(request_data["amount"].replace(",", ""))
         transactionID = request_data["transaction_id"]
         reference = request_data["reference"]
         valueDate = request_data["value_date"]
@@ -84,7 +84,7 @@ class Finance():
             cur.execute("""SELECT * from accounting_capital_injection_entries WHERE status= %s ORDER BY created_date DESC""", [status])
             results = cur.fetchall()   
             if results:
-                no = 0
+                number = 0
                 trans = []
                 for result in results:
                     bnk_acc_id = result['bank_account']    
@@ -119,10 +119,10 @@ class Finance():
                     cur.execute("""SELECT first_name, last_name FROM user_details WHERE user_id = %s """, [created_by_id])
                     createdby_details = cur.fetchone()            
                     created_by = createdby_details['first_name'] + " " + createdby_details['last_name']
-                    no = no + 1
+                    number = number + 1
                     res = {
                         "id": result['id'],
-                        "no":no,
+                        "number":number,
                         "globalId": result['global_id'],
                         "bank_account": bankAccount,
                         "transaction_id": result['transaction_id'],
