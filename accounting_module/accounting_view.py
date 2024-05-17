@@ -23,6 +23,7 @@ class Accounting():
             request_data["user_id"] = user["id"]
             request_data["owner_id"] = ''
             request_data["entity_id"] = 0
+            request_data["main_account"] = 0
             request_data["status"] = 2
             
             api_response = Accounting().create_new_account(request_data)
@@ -204,12 +205,25 @@ class Accounting():
                 accounts = []
                 count = 0
                 for account in results:
+                    type_id = account['type_id']
+                    
+                    cur.execute("""SELECT name FROM accounts_types WHERE id= %s""", [type_id])
+                    acc = cur.fetchone()
+                    if acc:
+                        type_name = acc['name']
+                    else:
+                        type_name = ''
                     #get created by name
                     createdby_id = account['createdby']
                     cur.execute("""SELECT first_name, last_name FROM user_details WHERE user_id= %s""", [createdby_id])
                     userdetails = cur.fetchone()
                     if userdetails:
                         user_name = userdetails['first_name'] + " " + userdetails['last_name']
+                        
+                    if int(account['currency']) == 1:
+                        currency = "Kes"
+                    else:
+                        currency = "Usd"
         
                     count = count + 1
                     res = {
@@ -217,9 +231,9 @@ class Accounting():
                         "id": account['id'],
                         "accountname": account['name'],
                         "referenceno": account['reference_no'],
-                        "type": account['type'],
+                        "type_name": type_name,
                         "category_name": account['category_name'],
-                        "currency": account['currency'],
+                        "currency": currency,
                         "number": account['number'],
                         "mainaccount": account['mainaccount'],
                         "description": account['description'],

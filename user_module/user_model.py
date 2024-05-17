@@ -224,10 +224,12 @@ class User():
         marital_status = validated_data["marital_status"]
         other_mobile_number = validated_data["alternative_mobile_number"]
         id_number = validated_data["id_number"]
+        date_of_birth = validated_data["date_of_birth"]
         address = validated_data["address"]
         postal_code = validated_data["postal_code"]
         country = validated_data["country"]
         county = validated_data["county"]
+        sub_county = validated_data["sub_county"]
         town = validated_data["city"]
         kra_pin = validated_data["kra_pin"]
         nhif_number = validated_data["nhif_number"]
@@ -275,8 +277,8 @@ class User():
             rowcount = cur.rowcount
             if rowcount:
                 user_id = cur.lastrowid
-                cur.execute("""INSERT INTO user_details (first_name, middle_name, last_name, user_id, user_category_id, distribution_center_id, id_number, gender, mobile_number, other_mobile_number, marital_status, country, county, town, address, postal_code, kra_pin, nssf_number, nhif_number, id_front, id_back, selfie, date_created, created_by) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""", 
-                                                        (first_name, middle_name, last_name, user_id,  user_categories, distribution_center_id, id_number, gender, mobile_number, other_mobile_number, marital_status, country, county, town, address, postal_code, kra_pin, nssf_number, nhif_number, id_front, id_back, selfie, date_created, created_by))
+                cur.execute("""INSERT INTO user_details (first_name, middle_name, last_name, user_id, user_category_id, distribution_center_id, id_number, gender, date_of_birth, mobile_number, other_mobile_number, marital_status, country, county, sub_county, town, address, postal_code, kra_pin, nssf_number, nhif_number, id_front, id_back, selfie, date_created, created_by) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""", 
+                                                        (first_name, middle_name, last_name, user_id,  user_categories, distribution_center_id, id_number, gender, date_of_birth, mobile_number, other_mobile_number, marital_status, country, county, sub_county, town, address, postal_code, kra_pin, nssf_number, nhif_number, id_front, id_back, selfie, date_created, created_by))
                 mysql.get_db().commit()
                 cur.close()
                 
@@ -320,6 +322,7 @@ class User():
         try:
             status = request_data["status"]
         
+            number = 0
             cur.execute("""SELECT id, username, email, contact, user_type FROM users WHERE status = %s """, (status))
             users = cur.fetchall()            
             if users:
@@ -327,8 +330,8 @@ class User():
                 
                 for user in users:
                     user_id = user['id']
-                    
-                    cur.execute("""SELECT first_name, middle_name, last_name, id_number, user_category_id, distribution_center_id, gender, mobile_number, other_mobile_number, marital_status, country, county, town, address, postal_code, kra_pin, nssf_number, nhif_number, id_front, id_back, selfie, date_created, created_by FROM user_details WHERE user_id = %s """, (user_id))
+                    number = number + 1
+                    cur.execute("""SELECT first_name, middle_name, last_name, id_number, user_category_id, distribution_center_id, gender, mobile_number, other_mobile_number, marital_status, date_of_birth, country, county, sub_county, town, address, postal_code, kra_pin, nssf_number, nhif_number, id_front, id_back, selfie, date_created, created_by FROM user_details WHERE user_id = %s """, (user_id))
                     user_details = cur.fetchone() 
                     if user_details:
                         user_category_id = int(user_details['user_category_id'])
@@ -357,9 +360,28 @@ class User():
                             user_type_name = "Agents"
                         else:
                             user_type_name = ''
+                        
+                        if int(user_details['gender']) ==1:
+                            gender = 'Male'
+                        elif int(user_details['gender']) ==2:
+                            gender = 'Female'
+                        else:
+                            gender = 'Other'
+                        
+                        if int(user_details['marital_status']) ==1:
+                            marital_status = 'Married'
+                        elif int(user_details['marital_status']) ==2:
+                            marital_status = 'Single'
+                        elif int(user_details['marital_status']) ==3:
+                            marital_status = 'Divorced'
+                        elif int(user_details['marital_status']) ==4:
+                            marital_status = 'Separated'
+                        else:
+                            marital_status = 'Other'
                             
                         response = {
                             "id": user['id'],
+                            "number":number,
                             "username": user['username'],
                             "email": user['email'],
                             "contact": user['contact'],
@@ -368,16 +390,18 @@ class User():
                             "user_category_id": user_category_id,
                             "distribution_center_name":distribution_center_name,
                             "distribution_center_town":distribution_center_town,
+                            "date_of_birth": user_details['date_of_birth'],
                             "first_name": user_details['first_name'],
                             "middle_name": user_details['middle_name'],
                             "last_name": user_details['last_name'],
                             "id_number": user_details['id_number'],
-                            "gender": user_details['gender'],
+                            "gender": gender,
                             "mobile_number": user_details['mobile_number'],
                             "other_mobile_number": user_details['other_mobile_number'],
-                            "marital_status": user_details['marital_status'],
+                            "marital_status": marital_status,
                             "country": user_details['country'],
                             "county": user_details['county'],
+                            "sub_county": user_details['sub_county'],
                             "town": user_details['town'],
                             "address": user_details['address'],
                             "postal_code": user_details['postal_code'],
@@ -445,7 +469,7 @@ class User():
                 user_id = user['id']
                 username = user['username']
                     
-                cur.execute("""SELECT first_name, middle_name, last_name, id_number, gender, mobile_number, other_mobile_number, marital_status, country, county, town, address, postal_code, kra_pin, nssf_number, nhif_number, id_front, id_back, selfie, date_created, created_by FROM user_details WHERE user_id = %s """, (user_id))
+                cur.execute("""SELECT first_name, middle_name, last_name, id_number, gender, mobile_number, other_mobile_number, marital_status, country, county, date_of_birth, sub_county, town, address, postal_code, kra_pin, nssf_number, nhif_number, id_front, id_back, selfie, date_created, created_by FROM user_details WHERE user_id = %s """, (user_id))
                 user_details = cur.fetchone() 
                 if user_details:
                     response = {
@@ -454,6 +478,7 @@ class User():
                         "email": user['email'],
                         "contact": user['contact'],
                         "user_type": user['user_type'],
+                        "date_of_birth": user['date_of_birth'],
                         "first_name": user_details['first_name'],
                         "middle_name": user_details['middle_name'],
                         "last_name": user_details['last_name'],
@@ -464,6 +489,7 @@ class User():
                         "marital_status": user_details['marital_status'],
                         "country": user_details['country'],
                         "county": user_details['county'],
+                        "sub_county": user_details['sub_county'],
                         "town": user_details['town'],
                         "address": user_details['address'],
                         "postal_code": user_details['postal_code'],
