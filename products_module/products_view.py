@@ -88,15 +88,38 @@ class Products():
                 
         try:
             status = request_data["status"]
-        
+            number = 0
             cur.execute("""SELECT id, product_sub_category_id, vat_percent_amount, name, ram, internal_storage, main_camera, front_camera, display, processor, operating_system, connectivity, colors, battery, image_path, date_created, created_by FROM product_mobile_phones_models WHERE status = %s """, (status))
             phone_models = cur.fetchall()            
             if phone_models:
                 mobile_phone_models = []
                 
                 for phone_model in phone_models:
+                    created_by_id = phone_model['created_by']
+                    
+                    cur.execute("""SELECT id, first_name, last_name FROM user_details WHERE user_id = %s """, (created_by_id))
+                    user_details = cur.fetchone()
+                    if user_details:
+                        first_name = user_details["first_name"]
+                        last_name = user_details["last_name"]
+                        user_name = first_name + ' ' + last_name
+                    else:
+                        user_name = ''
+                    
+                    sub_category = int(phone_model['product_sub_category_id'])
+                    if sub_category == 1:
+                        category_name = "Android"
+                        
+                    elif sub_category == 2:
+                        category_name = "iOS"
+                        
+                    else:
+                        category_name = "Feature Phone"
+            
+                    number = number + 1
                     response = {
                         "id": phone_model['id'],
+                        "number":number,
                         "vat_percent_amount": float(phone_model['vat_percent_amount']),
                         "product_sub_category_id": phone_model['product_sub_category_id'],
                         "name": phone_model['name'],
@@ -112,7 +135,9 @@ class Products():
                         "battery": phone_model['battery'],
                         "image_path": phone_model['image_path'],
                         "date_created": phone_model['date_created'],
-                        "created_by_id": phone_model['created_by']
+                        "created_by_id": phone_model['created_by'],
+                        "user_name": user_name,
+                        "category_name":category_name
                     }
                     mobile_phone_models.append(response)
             
