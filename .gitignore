@@ -4,6 +4,7 @@ __pycache__
 env/
 venv/
 .env
+run.py
 keys/
 *.log
 static/

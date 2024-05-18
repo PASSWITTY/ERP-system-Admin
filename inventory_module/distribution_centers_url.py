@@ -37,8 +37,6 @@ def list_distribution_center_types():
 
 
 
-
-
     
 
 

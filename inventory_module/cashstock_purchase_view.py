@@ -119,6 +119,24 @@ class CashStockPurchase():
                 
                 for purchase in purchases:
                     global_id = purchase["global_id"]
+                    user_id = purchase["created_by"]
+                    supplier_id = purchase['supplier_id']
+                    
+                    cur.execute("""SELECT first_name, last_name from user_details WHERE user_id = %s """, (user_id))
+                    get_user = cur.fetchone()
+                    if get_user:
+                        first_name = get_user["first_name"]
+                        last_name = get_user["last_name"]
+                        user_name = first_name + '' + last_name
+                    else:
+                        user_name = ''
+                        
+                    cur.execute("""SELECT business_name from suppliers WHERE id = %s """, (supplier_id))
+                    get_supplier = cur.fetchone()
+                    if get_supplier:
+                        supplier_business_name = get_supplier["business_name"]
+                    else:
+                        supplier_business_name = ''
                     
                     product_details = []
                     cur.execute("""SELECT id, model_id,  price_per_unit,  quantity, total_amount_per_model FROM cash_stock_purchase_models WHERE global_id = %s """, (global_id))
@@ -139,8 +157,8 @@ class CashStockPurchase():
                         "id": purchase['id'],
                         "total_amount": float(purchase['total_amount']),
                         "transaction_id": purchase["transaction_id"],
-                        "supplier_name": purchase['supplier_name'],
-                        "supplier_id": purchase['supplier_id'],
+                        "supplier_name": supplier_business_name,
+                        "supplier_id": supplier_id,
                         "supplier_payable_account_number": purchase['supplier_payable_account_number'],
                         "bank_account_number": purchase['bank_account_number'],
                         "purchase_date": purchase['purchase_date'],
@@ -148,7 +166,8 @@ class CashStockPurchase():
                         "delivery_status": purchase['delivery_status'],
                         "notes": purchase['notes'],
                         "created_date": purchase['created_date'],
-                        "created_by_id": purchase['created_by']
+                        "created_by_id": purchase['created_by'],
+                        "user_name":user_name
                         
                     }
                     response_array.append(response)

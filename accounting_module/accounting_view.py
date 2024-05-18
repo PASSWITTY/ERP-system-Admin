@@ -515,7 +515,7 @@ class Accounting():
             return jsonify(message)
         # print("select")
         try:
-            cur.execute("""SELECT * FROM accounts WHERE type_id = %s AND status = %s """, [type, status])
+            cur.execute("""SELECT id, name, reference_no, type, number, balance, owner_id FROM accounts WHERE type_id = %s AND status = %s """, [type, status])
             results = cur.fetchall()
             cur.close()
 
@@ -527,7 +527,8 @@ class Accounting():
                     "reference_number": account['reference_no'],
                     "type": account['type'],
                     "account_number": account['number'],
-                    "balance": float(account['balance'])
+                    "balance": float(account['balance']),
+                    "owner_id": account['owner_id'],
 
                 }
                 wallets.append(res)

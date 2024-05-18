@@ -199,7 +199,7 @@ class AgentsDistribution():
             else:                
                 message = {'status':201,
                             'error':'sp_a04',
-                            'description':'Failed to fetch mobile phone dispatched to agent!'
+                            'description':'Failed to fetch mobile phones dispatched to agent!'
                         }   
                 return jsonify(message), 201             
              
@@ -343,7 +343,7 @@ class AgentsDistribution():
             else:                
                 message = {'status':201,
                             'error':'sp_a04',
-                            'description':'Failed to fetch mobile phone dispatched to agent!'
+                            'description':'Failed to fetch mobile phone record dispatched to agent!'
                         }   
                 return jsonify(message), 201             
              
