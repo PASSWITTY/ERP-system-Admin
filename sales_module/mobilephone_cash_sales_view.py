@@ -408,7 +408,9 @@ class MobilePhoneCashSales():
                        'error':'sp_a05',
                        'description':'Failed to retrieve mobile phone sales record from database.' + format(error)}
             ErrorLogger().logError(message)
-            return jsonify(message)  
+            return jsonify(message) 
+        finally:
+            cur.close() 
         
     def get_cash_sales_details(self, user):
         
@@ -529,6 +531,8 @@ class MobilePhoneCashSales():
                        'description':'Failed to retrieve mobile phone sales record from database.' + format(error)}
             ErrorLogger().logError(message)
             return jsonify(message)
+        finally:
+            cur.close()
             
     def approve_cash_sales(self, user):
         request_data = request.get_json() 

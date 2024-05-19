@@ -203,6 +203,8 @@ class User():
                        'description':'Failed to retrieve user categories record from database.' + format(error)}
             ErrorLogger().logError(message),
             return jsonify(message), 501  
+        finally:
+            cur.close()
         
     def create_user(self, user):
         #Get the request data 
@@ -297,6 +299,8 @@ class User():
                        'description':'Failed to create a new user. Error description ' + format(error)}
             ErrorLogger().logError(message)
             return jsonify(message), 501 
+        finally:
+            cur.close()
         
     def list_users(self, user):
         
@@ -438,6 +442,8 @@ class User():
                        'description':'Failed to retrieve user record from database.' + format(error)}
             ErrorLogger().logError(message),
             return jsonify(message), 501
+        finally:
+            cur.close()
         
     def get_user_details(self, user):
         
@@ -528,6 +534,8 @@ class User():
                        'description':'Failed to fetch user record from database.' + format(error)}
             ErrorLogger().logError(message),
             return jsonify(message), 501
+        finally:
+            cur.close()
 
     def approve_user(self, user):
         request_data = request.get_json() 

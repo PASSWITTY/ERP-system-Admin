@@ -153,6 +153,8 @@ class DistributionCenter():
                        'description':'Failed to retrieve Distribution center record from database.' + format(error)}
             ErrorLogger().logError(message),
             return jsonify(message), 501  
+        finally:
+            cur.close()
         
     def get_distribution_center(self, user):
         
@@ -221,6 +223,8 @@ class DistributionCenter():
                        'description':'Failed to retrieve Distribution center record from database.' + format(error)}
             ErrorLogger().logError(message),
             return jsonify(message), 501
+        finally:
+            cur.close()
              
     def approve_distribution_center(self, user):
         request_data = request.get_json() 
@@ -328,3 +332,5 @@ class DistributionCenter():
                        'description':'Failed to retrieve Distribution center record from database.' + format(error)}
             ErrorLogger().logError(message),
             return jsonify(message), 501 
+        finally:
+            cur.close()

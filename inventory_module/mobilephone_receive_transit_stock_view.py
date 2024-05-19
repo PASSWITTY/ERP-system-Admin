@@ -159,8 +159,7 @@ class ReceiveTransitStock():
                             'error':'sp_a04',
                             'description':'Failed to fetch products received records !'
                         }   
-                return jsonify(message), 201             
-             
+                return jsonify(message), 201  
             
         #Error handling
         except Exception as error:
@@ -169,6 +168,8 @@ class ReceiveTransitStock():
                        'description':'Failed to retrieve products received from database.' + format(error)}
             ErrorLogger().logError(message),
             return jsonify(message), 501  
+        finally:
+            cur.close()
         
     def get_received_stock_details(self, user):
         
@@ -233,7 +234,6 @@ class ReceiveTransitStock():
                     "state":this_stock_state,
                     "created_date": created_date,
                     "created_by_id": created_by_id
-                    
                 }
             
                 return response
@@ -252,6 +252,8 @@ class ReceiveTransitStock():
                        'description':'Failed to fetch products received details.' + format(error)}
             ErrorLogger().logError(message),
             return jsonify(message), 501
+        finally:
+            cur.close()
              
     def approve_received_stock(self, user):
         request_data = request.get_json() 

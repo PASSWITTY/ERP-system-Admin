@@ -29,6 +29,12 @@ def approve_cash_stock_purchase():
     user = current_user
     return CashStockPurchase().approve_cash_stock_purchase(user)
 
+@cashstock_purchase_bp.route("/list-cash-stock-todeliver", methods=["POST"])
+@jwt_required()
+def list_cash_stock_todeliver():
+    user = current_user
+    return CashStockPurchase().list_cash_stock_todeliver(user)
+
 
 
 

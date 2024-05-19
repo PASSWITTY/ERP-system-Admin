@@ -70,9 +70,7 @@ class Suppliers():
                     cur.execute("""INSERT INTO supplier_contact (id, supplier_id, title, first_name, last_name, mobile_number, alternative_mobile_number, email, created_date, created_by, status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""", 
                                                         (supplierId, supplier_id, title, first_name, last_name, mobile_number, alternative_mobile_number, email, created_date, created_by, status))
                     mysql.get_db().commit()
-                    
-                cur.close()
-            
+                
             message = {"description":"Supplier was created successfully",
                        "status":200}
             return message
@@ -85,6 +83,8 @@ class Suppliers():
                        'description':'Failed to create a supplier. Error description ' + format(error)}
             ErrorLogger().logError(message)
             return jsonify(message)  
+        finally:
+            cur.close()
   
     def list_inventory_suppliers(self, user):
         
@@ -211,6 +211,8 @@ class Suppliers():
                        'description':'Failed to retrieve supplier record from database.' + format(error)}
             ErrorLogger().logError(message)
             return jsonify(message)  
+        finally:
+            cur.close()
 
     def get_inventory_supplier_details(self, user):
         

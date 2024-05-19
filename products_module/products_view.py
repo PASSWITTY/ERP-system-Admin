@@ -63,7 +63,9 @@ class Products():
                        'error':'sp_a02',
                        'description':'Failed to create a mobile phone model. Error description ' + format(error)}
             ErrorLogger().logError(message)
-            return jsonify(message)  
+            return jsonify(message) 
+        finally:
+            cur.close() 
   
     def list_phone_models(self, user):
         
@@ -163,6 +165,8 @@ class Products():
                        'description':'Failed to retrieve mobile phone model record from database.' + format(error)}
             ErrorLogger().logError(message)
             return jsonify(message)  
+        finally:
+            cur.close()
         
     def get_phone_model_details(self, user):
         

@@ -36,7 +36,6 @@ class TransitStock():
         contact_name = validated_data["contact_name"] 
         contact_number = validated_data["contact_number"] 
         
-        
         stock_state = 1 #not received       
         product_details = json.dumps(validated_data["product_details"])
         notes = validated_data["notes"] 
@@ -87,13 +86,10 @@ class TransitStock():
                                                                           (products_in_transit_id, global_id, model_id, quantity, quantity_received, status))
                     mysql.get_db().commit()
             else:
-                message = {"description":"Failed to create transit stock",
+                message = {"description":"Failed to put purchased stock in transit",
                            "status":201}
                 return message
                 
-                
-            cur.close()
-            
             message = {"description":"Transit stock was created successfully",
                        "status":200}
             return message
@@ -106,6 +102,8 @@ class TransitStock():
                        'description':'Failed to create transit stock. Error description ' + format(error)}
             ErrorLogger().logError(message)
             return jsonify(message), 501  
+        finally:
+            cur.close()
   
     def list_stock_transit(self, user):
         
@@ -226,6 +224,8 @@ class TransitStock():
                        'description':'Failed to retrieve products in transit record from database.' + format(error)}
             ErrorLogger().logError(message),
             return jsonify(message), 501  
+        finally:
+            cur.close()
         
     def get_stock_transit_details(self, user):
         
@@ -340,6 +340,8 @@ class TransitStock():
                        'description':'Failed to fetch stock in transit details.' + format(error)}
             ErrorLogger().logError(message),
             return jsonify(message), 501
+        finally:
+            cur.close()
              
     def approve_stock_transit(self, user):
         request_data = request.get_json() 
@@ -378,28 +380,54 @@ class TransitStock():
                 bank_account_number = purchase["bank_account_number"]
                 delivery_date = purchase["delivery_date"]
                 
-                details = {
-                            "id":id,
-                            "user_id":user["id"],
-                            "global_id":global_id,
-                            "bank_account_number":bank_account_number,
-                            "payable_account_number":transporter_payable_account_number,
-                            "amount":total_amount,                
-                            "settlement_date":delivery_date,
-                            "transaction_id":transaction_id
-                        }
+                #If there was transport cose, record the expense
+                if total_amount > 0:
+                    details = {
+                                "id":id,
+                                "user_id":user["id"],
+                                "global_id":global_id,
+                                "bank_account_number":bank_account_number,
+                                "payable_account_number":transporter_payable_account_number,
+                                "amount":total_amount,                
+                                "settlement_date":delivery_date,
+                                "transaction_id":transaction_id
+                            }
+                            
+                    api_message = DebitCredit().transit_stock_approve(details)  
+                else:
+                    pass
+                
+                #update transit record
+                cur.execute("""UPDATE products_in_transit set status=1, approved_date = %s, approved_by = %s WHERE id = %s """, ([dateapproved, approved_by, id]))
+                mysql.get_db().commit() 
+                rowcount = cur.rowcount
+                if rowcount:
+                    
+                    cur.execute("""SELECT stock_purchases_id FROM products_in_transit WHERE id = %s """, (id))
+                    get_transit_details = cur.fetchone()
+                    if get_transit_details:
+                        stock_purchases_id = get_transit_details["stock_purchases_id"]
+                    else:
+                        stock_purchases_id = 0
                         
-                api_message = DebitCredit().transit_stock_approve(details)  
-                if int(api_message["status"]) == 200:
+                    #For each model placed in transit, update purchases records to indicated number of models delivered
+                    cur.execute("""SELECT model_id, quantity FROM products_in_transit_models WHERE products_in_transit_id = %s """, (id))
+                    modelsin_transit = cur.fetchall()
+                    if modelsin_transit:
+                        for transit_model in modelsin_transit:
+                            model_id = transit_model["model_id"]
+                            quantity = transit_model["quantity"]
+                            
+                            cur.execute("""UPDATE cash_stock_purchase_models SET quantity_delivered = quantity_delivered + %s WHERE model_id = %s AND cash_stock_purchase_id = %s""", (quantity, model_id, stock_purchases_id))
+                            mysql.get_db().commit()
+                    
                     message = {'status':200,
-                                'description':'Transit stock record was approved successfully!'}
+                               'description':'Transit stock record was approved successfully!'}
                     return jsonify(message), 200  
-                else:              
-                    return jsonify(api_message)
                 
             else:
                 message = {'status':201,
-                            'description':'Transit stock record was not found!'}
+                           'description':'Transit stock record was not found!'}
                 return jsonify(message), 201
                     
         #Error handling

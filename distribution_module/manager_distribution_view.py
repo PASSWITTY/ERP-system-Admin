@@ -56,7 +56,6 @@ class ManagerDistribution():
             message = {"description":"Mobile phone was dispatched to manager successfully",
                        "status":200}
             return message
-                        
 
         #Error handling
         except Exception as error:
@@ -65,6 +64,8 @@ class ManagerDistribution():
                        'description':'Failed to dispatched mobile phone to manager. Error description ' + format(error)}
             ErrorLogger().logError(message)
             return jsonify(message)  
+        finally:
+            cur.close()
   
     def list_dispatched_stock(self, user):
         
@@ -181,7 +182,9 @@ class ManagerDistribution():
                        'error':'sp_a05',
                        'description':'Failed to retrieve mobile phone dispatched to manager record from database.' + format(error)}
             ErrorLogger().logError(message)
-            return jsonify(message)  
+            return jsonify(message) 
+        finally:
+            cur.close() 
         
     def get_dispatched_stock_details(self, user):
         
@@ -295,6 +298,8 @@ class ManagerDistribution():
                        'description':'Failed to retrieve mobile phone dispatched to manager record from database.' + format(error)}
             ErrorLogger().logError(message)
             return jsonify(message) 
+        finally:
+            cur.close()
        
     def approve_dispatched_stock(self, user):
         request_data = request.get_json() 

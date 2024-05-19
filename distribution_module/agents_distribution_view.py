@@ -65,6 +65,8 @@ class AgentsDistribution():
                        'description':'Failed to dispatched mobile phone to agent. Error description ' + format(error)}
             ErrorLogger().logError(message)
             return jsonify(message) 
+        finally:
+            cur.close()
   
     def list_dispatched_stock(self, user):
         
@@ -211,6 +213,8 @@ class AgentsDistribution():
                        'description':'Failed to retrieve mobile phone dispatched to agent record from database.' + format(error)}
             ErrorLogger().logError(message)
             return jsonify(message)  
+        finally:
+            cur.close()
         
     def get_dispatched_stock_details(self, user):
 
@@ -355,6 +359,8 @@ class AgentsDistribution():
                        'description':'Failed to retrieve mobile phone dispatched to agent record from database.' + format(error)}
             ErrorLogger().logError(message)
             return jsonify(message) 
+        finally:
+            cur.close()
        
     def approve_dispatched_stock(self, user):
         request_data = request.get_json() 
@@ -477,4 +483,6 @@ class AgentsDistribution():
                        'description':'Agent failed to receive mobile phone!. Error description ' + format(error)}
             ErrorLogger().logError(message)
             return jsonify(message), 501
+        finally:
+            cur.close()
    

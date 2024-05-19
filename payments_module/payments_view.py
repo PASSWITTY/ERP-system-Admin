@@ -4,7 +4,6 @@ from resources.logs.logger import ErrorLogger
 from resources.payload.payload import Localtime
 
 class Payments():
-          
   
     def list_payments_modes(self, user):
         
@@ -66,6 +65,8 @@ class Payments():
                        'description':'Failed to retrieve modes of payments record from database.' + format(error)}
             ErrorLogger().logError(message),
             return jsonify(message), 501  
+        finally:
+            cur.close()
         
 
 

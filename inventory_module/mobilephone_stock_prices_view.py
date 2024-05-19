@@ -151,6 +151,8 @@ class StockPrice():
                        'description':'Failed to retrieve mobile phone model price record from database.' + format(error)}
             ErrorLogger().logError(message),
             return jsonify(message), 501  
+        finally:
+            cur.close()
         
     def get_stock_price_details(self, user):
         
@@ -233,6 +235,8 @@ class StockPrice():
                        'description':'Failed to retrieve mobile phone model price record from database.' + format(error)}
             ErrorLogger().logError(message),
             return jsonify(message), 501 
+        finally:
+            cur.close()
              
     def approve_stock_price(self, user):
         request_data = request.get_json() 

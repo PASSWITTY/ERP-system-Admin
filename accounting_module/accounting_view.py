@@ -9,7 +9,6 @@ class Accounting():
   
     def create_account(self, user):
         request_data = request.get_json()
-       
         
         if request_data == None:
             message = {'status':402,
@@ -503,7 +502,6 @@ class Accounting():
 
         type = details["type"]
         status = details["status"]
-        
 
         try:
             cur = mysql.get_db().cursor()

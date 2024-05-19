@@ -66,6 +66,8 @@ class Transport():
                        'description':'Failed to retrieve transport modes record from database.' + format(error)}
             ErrorLogger().logError(message),
             return jsonify(message), 501  
+        finally:
+            cur.close()
         
 
 
