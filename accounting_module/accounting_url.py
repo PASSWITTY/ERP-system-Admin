@@ -49,6 +49,13 @@ def list_specific_accounts_by_type():
     return Accounting().list_specific_accounts_by_type(user)
 
 
+@accounting_bp.route("/get-transport-payable-default-account", methods=["POST"])
+@jwt_required()
+def get_transport_payable_default_account():
+    user = current_user
+    return Accounting().get_transport_payable_default_account(user)
+
+
 
 
 

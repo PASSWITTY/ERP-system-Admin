@@ -17,7 +17,7 @@ class CashStockPurchase():
         #     return jsonify({"error": error_messages}), 400
         
         total_amount = float(validated_data["total_amount"].replace(",", ""))
-        supplier_name = validated_data["supplier_name"]
+        # supplier_name = validated_data["supplier_name"]
         supplier_id = validated_data["supplier_id"]
         supplier_payable_account_number = validated_data["supplier_payable_account_number"]
         bank_account_number = validated_data["bank_account_number"]
@@ -51,8 +51,8 @@ class CashStockPurchase():
             global_id = 'zz' + str(trans_uuid[-12:])
         
             #store cash stock purchased details
-            cur.execute("""INSERT INTO cash_stock_purchases (global_id, total_amount, transaction_id, supplier_name, supplier_id, supplier_payable_account_number, bank_account_number ,purchase_date, delivery_status, notes, created_date, created_by, status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""", 
-                                                            (global_id, total_amount, transaction_id, supplier_name, supplier_id, supplier_payable_account_number, bank_account_number ,purchase_date, delivery_status, notes, created_date, created_by, status))
+            cur.execute("""INSERT INTO cash_stock_purchases (global_id, total_amount, transaction_id, supplier_id, supplier_payable_account_number, bank_account_number ,purchase_date, delivery_status, notes, created_date, created_by, status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""", 
+                                                            (global_id, total_amount, transaction_id, supplier_id, supplier_payable_account_number, bank_account_number ,purchase_date, delivery_status, notes, created_date, created_by, status))
             mysql.get_db().commit()
             rowcount = cur.rowcount
             if rowcount:
@@ -66,7 +66,7 @@ class CashStockPurchase():
                     price_per_unit = float(phone_model_detail["price_per_unit"].replace(",", ""))
                     total_amount_per_model = float(phone_model_detail["total_amount_per_model"].replace(",", ""))
                 
-                    cur.execute("""INSERT INTO cash_stock_purchase_models (cash_stock_purchase_id, global_id, model_id, price_per_unit, quantity, quantity_delivered, total_amount_per_model, created_date, created_by, status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)""", 
+                    cur.execute("""INSERT INTO cash_stock_purchase_models (cash_stock_purchase_id, global_id, model_id, price_per_unit, quantity, quantity_delivered, total_amount_per_model, created_date, created_by, status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""", 
                                                                           (cash_stock_purchase_id, global_id, model_id, price_per_unit, quantity, quantity_delivered, total_amount_per_model, created_date, created_by, status))
                     mysql.get_db().commit()
             else:
@@ -113,7 +113,7 @@ class CashStockPurchase():
         try:
             status = request_data["status"]
             
-            cur.execute("""SELECT id, global_id, transaction_id, total_amount, supplier_name, supplier_id, supplier_payable_account_number, bank_account_number, purchase_date, delivery_status, notes, created_date, created_by FROM cash_stock_purchases WHERE status = %s """, (status))
+            cur.execute("""SELECT id, global_id, transaction_id, total_amount, supplier_id, supplier_payable_account_number, bank_account_number, purchase_date, delivery_status, notes, created_date, created_by FROM cash_stock_purchases WHERE status = %s """, (status))
             purchases = cur.fetchall()            
             if purchases:
                 response_array = []
@@ -227,6 +227,24 @@ class CashStockPurchase():
             purchase = cur.fetchone()            
             if purchase:
                 cash_stock_purchase_id = purchase["id"]
+                user_id = purchase["created_by"]
+                supplier_id = purchase['supplier_id']
+                
+                cur.execute("""SELECT first_name, last_name from user_details WHERE user_id = %s """, (user_id))
+                get_user = cur.fetchone()
+                if get_user:
+                    first_name = get_user["first_name"]
+                    last_name = get_user["last_name"]
+                    user_name = first_name + '' + last_name
+                else:
+                    user_name = ''
+                    
+                cur.execute("""SELECT business_name from suppliers WHERE id = %s """, (supplier_id))
+                get_supplier = cur.fetchone()
+                if get_supplier:
+                    supplier_business_name = get_supplier["business_name"]
+                else:
+                    supplier_business_name = ''
                     
                 product_details = []
                 cur.execute("""SELECT id, model_id,  price_per_unit,  quantity, quantity_delivered, total_amount_per_model FROM cash_stock_purchase_models WHERE cash_stock_purchase_id = %s """, (cash_stock_purchase_id))
@@ -247,6 +265,7 @@ class CashStockPurchase():
                     
                     "id": purchase['id'],
                     "transaction_id": purchase['transaction_id'],
+                    "supplier_name": supplier_business_name,
                     "total_amount": float(purchase['total_amount']),
                     "supplier_name": purchase['supplier_name'],
                     "supplier_id": purchase['supplier_id'],
@@ -257,7 +276,8 @@ class CashStockPurchase():
                     "delivery_status": purchase['delivery_status'],
                     "notes": purchase['notes'],
                     "created_date": purchase['created_date'],
-                    "created_by_id": purchase['created_by']
+                    "created_by_id": purchase['created_by'],
+                    "user_name":user_name
                 }
                 
                 return response
@@ -428,11 +448,20 @@ class CashStockPurchase():
                     if models_purchased:
                         for model_purchased in models_purchased:
                     
+                            quantity = float(model_purchased["quantity"])
+                            quantity_delivered = float(model_purchased["quantity_delivered"])
+                            todeliver = quantity - quantity_delivered
+                            if todeliver < 0:
+                                to_deliver = 0
+                            else:
+                                to_deliver = todeliver
+                    
                             model_details = {
                                 "model_id":model_purchased["model_id"],
                                 "price_per_unit":float(model_purchased["price_per_unit"]),
-                                "quantity":float(model_purchased["quantity"]),
-                                "quantity_delivered":float(model_purchased["quantity_delivered"]),
+                                "quantity":quantity,
+                                "quantity_delivered":quantity_delivered,
+                                "to_deliver":to_deliver,
                                 "total_amount_per_model":float(model_purchased["total_amount_per_model"])
                             }
                             product_details.append(model_details)
@@ -442,6 +471,7 @@ class CashStockPurchase():
                         "id": cash_stock_purchase_id,
                         "total_amount": float(stock_purchases['total_amount']),
                         "transaction_id": stock_purchases["transaction_id"],
+                        "global_id": stock_purchases["global_id"],
                         "supplier_name": supplier_business_name,
                         "supplier_id": supplier_id,
                         "supplier_payable_account_number": stock_purchases['supplier_payable_account_number'],

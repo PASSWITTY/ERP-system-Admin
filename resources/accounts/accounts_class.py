@@ -7,46 +7,7 @@ from resources.logs.logger import ErrorLogger
 
 
 class Accounts():
-    
-    def get_loan_asset_account(self, details):
-        #Get the request data
-
-        if details == None:
-            message = {"description":"Transaction is missing some details!", 
-                       "status": 402}
-            return message
         
-        customer_id = details["customer_id"]
-        loan_id = details["loan_id"]
-        
-        # Open A connection to the database
-        try:
-            cur =  mysql.get_db().cursor()
-        except:
-            message = {"description":"Couldn't connect to the Database!", 
-                       "status": 500}
-            return message
-        
-        #Get loan asset account
-        cur.execute("""SELECT number FROM accounts WHERE status =1 AND type =5 AND owner_id = %s AND entity_id = %s """, (customer_id, loan_id))
-        get_loan_asset_account = cur.fetchone() 
-        if get_loan_asset_account:
-            loan_asset_account = get_loan_asset_account["number"]
-            message =  {'status':200,
-                        'data':loan_asset_account,                             
-                        }
-            return message
-        
-        else:
-            loan_asset_account = 0
-            message = {'status':402,
-                        'error':'cr_d03',
-                        'data':loan_asset_account,
-                        'description':'Task was not successful. Asset loan account is missing',                               
-                        }
-            ErrorLogger().logError(message) 
-            return message
-    
     def get_receivable_account(self, details):
         #Get the request data
 
@@ -82,44 +43,6 @@ class Accounts():
                         'error':'cr_d08',
                         'data':receivable_account,
                         'description':'Task was not successful. Receivable account is missing',                               
-                        }
-            ErrorLogger().logError(message) 
-            return message
-
-    def get_interest_earned_account(self, details):
-        #Get the request data
-
-        if details == None:
-            message = {"description":"Transaction is missing some details!", 
-                       "status": 402}
-            return message
-        
-        interest_id = details["interest_id"]
-        
-        # Open A connection to the database
-        try:
-            cur =  mysql.get_db().cursor()
-        except:
-            message = {"description":"Couldn't connect to the Database!", 
-                       "status": 500}
-            return message
-        
-        #Get interest earned income account
-        cur.execute("""SELECT number FROM accounts WHERE status =1 AND sub_category_id=2 AND type =14 AND owner_id = %s """, [interest_id])
-        get_interest_earned_account = cur.fetchone() 
-        if get_interest_earned_account:
-            interest_earned_account = get_interest_earned_account["number"]
-            message =  {'status':200,
-                        'data':interest_earned_account,                             
-                        }
-            return message
-        
-        else:
-            interest_earned_account = 0
-            message = {'status':402,
-                        'error':'cr_d09',
-                        'data':interest_earned_account,
-                        'description':'Task was not successful. Interest Earned Account is missing',                               
                         }
             ErrorLogger().logError(message) 
             return message
@@ -1119,6 +1042,39 @@ class Accounts():
             return message
         finally:
             cur.close()
+    
+    def get_transport_payable_account(self):
+        
+        # Open A connection to the database
+        try:
+            cur =  mysql.get_db().cursor()            
+        except:
+            message = {"status":500,
+                       "description":"Couldn't connect to the Database!"}
+            return message
+
+        try:
+            cur.execute("""SELECT account_number FROM default_accounts WHERE default_status =1 AND default_type_number=9""")
+            get_transport_payable_acc = cur.fetchone()
+            if get_transport_payable_acc:
+                transport_payable_acc = get_transport_payable_acc["account_number"]
+
+                message = {"description":"Default transport payable account was Fetched!", 
+                           "data":transport_payable_acc,
+                           "status":200}
+
+                return message
+            else:
+                message = {"description":"Default Transport Payable Account has not been setup!", 
+                           "status":201}
+                return message
+             
+        except Exception as error:
+            message = {"status":501,
+                       "description":"Transaction failed! Error description " + format(error)}
+            return message
+        finally:
+            cur.close()
             
     def c2b_till_account(self):
         
@@ -1290,153 +1246,4 @@ class Accounts():
         finally:
             cur.close()
             
-    def airtime_stock_account(self):
-        
-        # Open A connection to the database
-        try:
-            cur =  mysql.get_db().cursor()            
-        except:
-            message = {"status":500,
-                       "data":0,
-                       "description":"Couldn't connect to the Database!"}
-            return message
-
-        try:
-            cur.execute("""SELECT account_number FROM default_accounts WHERE default_status =1 AND default_type_number= 14""")
-            ac = cur.fetchone()
-            if ac:
-                ac_no = ac["account_number"]
-
-                message = {"description":"Default airtime stock account was found!", 
-                           "data":ac_no,
-                           "status":200
-                           }
-
-                return message
-            else:
-                message = {
-                           "description":"Default airtime stock account has not been setup!", 
-                           "status":201
-                           }
-                return message
-             
-        except Exception as error:
-            message = {"status":501,
-                       "description":"Transaction failed! Error description " + format(error)}
-            return message
-        finally:
-            cur.close()
-              
-    def airtime_cog_account(self):
-            
-        # Open A connection to the database
-        try:
-            cur =  mysql.get_db().cursor()            
-        except:
-            message = {"status":500,
-                       "data":0,
-                       "description":"Couldn't connect to the Database!"}
-            return message
-
-        try:
-            cur.execute("""SELECT account_number FROM default_accounts WHERE default_status =1 AND default_type_number= 15""")
-            ac = cur.fetchone()
-            if ac:
-                ac_no = ac["account_number"]
-
-                message = {"description":"Default airtime cog account was found!", 
-                           "data":ac_no,
-                           "status":200
-                           }
-
-                return message
-            else:
-                message = {
-                           "description":"Default airtime cog account has not been setup!", 
-                           "status":201
-                           }
-                return message
-             
-        except Exception as error:
-            message = {"status":501,
-                       "description":"Transaction failed! Error description " + format(error)}
-            return message
-        finally:
-            cur.close()
-            
-    def airtime_income_realized_account(self):
-            
-        # Open A connection to the database
-        try:
-            cur =  mysql.get_db().cursor()            
-        except:
-            message = {"status":500,
-                       "data":0,
-                       "description":"Couldn't connect to the Database!"}
-            return message
-
-        try:
-            cur.execute("""SELECT account_number FROM default_accounts WHERE default_status =1 AND default_type_number= 18""")
-            ac = cur.fetchone()
-            if ac:
-                ac_no = ac["account_number"]
-
-                message = {"description":"Default airtime income realized account was found!", 
-                           "data":ac_no,
-                           "status":200
-                           }
-
-                return message
-            else:
-                message = {
-                           "description":"Default airtime income realized account has not been setup!", 
-                           "status":201
-                           }
-                return message
-             
-        except Exception as error:
-            message = {"status":501,
-                       "description":"Transaction failed! Error description " + format(error)}
-            return message
-        finally:
-            cur.close()
-            
-    def airtime_income_earned_account(self):
-            
-        # Open A connection to the database
-        try:
-            cur =  mysql.get_db().cursor()            
-        except:
-            message = {"status":500,
-                       "data":0,
-                       "description":"Couldn't connect to the Database!"}
-            return message
-
-        try:
-            cur.execute("""SELECT account_number FROM default_accounts WHERE default_status =1 AND default_type_number= 16""")
-            ac = cur.fetchone()
-            if ac:
-                ac_no = ac["account_number"]
-
-                message = {"description":"Default airtime income earned account was found!", 
-                           "data":ac_no,
-                           "status":200
-                           }
-
-                return message
-            else:
-                message = {
-                           "description":"Default airtime income earned account has not been setup!", 
-                           "status":201
-                           }
-                return message
-             
-        except Exception as error:
-            message = {"status":501,
-                       "description":"Transaction failed! Error description " + format(error)}
-            return message
-        finally:
-            cur.close()
-
-
     

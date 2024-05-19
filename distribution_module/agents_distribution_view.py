@@ -105,7 +105,7 @@ class AgentsDistribution():
                     agent_remarks = phone_device['agent_remarks']
                     agent_received_date = phone_device['agent_received_date']
                     teamleader_dispatch_date = phone_device['teamleader_dispatch_date']
-                    stock_state = phone_device['stock_state'],
+                    stock_state = phone_device['stock_state']
                     created_date = phone_device['created_date']
                     created_by = phone_device['created_by']
                                         
@@ -251,7 +251,7 @@ class AgentsDistribution():
                     agent_remarks = phone_device['agent_remarks']
                     agent_received_date = phone_device['agent_received_date']
                     teamleader_dispatch_date = phone_device['teamleader_dispatch_date']
-                    stock_state = phone_device['stock_state'],
+                    stock_state = phone_device['stock_state']
                     created_date = phone_device['created_date']
                     created_by = phone_device['created_by']
                                         

@@ -547,3 +547,53 @@ class Accounting():
             return message 
         finally:
             cur.close()
+            
+    def get_transport_payable_default_account(self,user):
+        
+        try:
+            cur = mysql.get_db().cursor()
+        except:
+            message = {'status':500,
+                       'error':'aa_a28',
+                       'description':"Couldn't connect to the Database!"}
+            ErrorLogger().logError(message)
+            return jsonify(message)
+        # print("select")
+        try:
+            cur.execute("""SELECT account_number from default_accounts WHERE default_type_number = 9 AND default_status = 1 """)
+            results = cur.fetchone()
+            if results:
+                account_number = results['account_number']
+                
+                cur.execute("""SELECT id, name FROM accounts WHERE number = %s """, (account_number))
+                acc = cur.fetchone()
+                if acc:
+                    account_name = acc["name"]
+                    account_id = acc["id"]
+                    
+                    res = {
+                        "account_id": account_id,
+                        "account_name": account_name,
+                        "account_number":account_number
+                        }
+                    #The response object
+                    message = {'status':200,
+                                'response':res,
+                                'description':'Account record was found!'}
+
+                    return jsonify(message)
+                else:
+                    message = {'status':404,
+                               'description':'Failed to fetch account record!'}
+
+                    return jsonify(message)
+        
+        #Error handling
+        except Exception as error:
+            message = {'status':501,
+                       'error':'aa_a29',
+                       'description':'Failed to fetch account details! Error description ' + format(error)}
+            ErrorLogger().logError(message)
+            return message 
+        finally:
+            cur.close()

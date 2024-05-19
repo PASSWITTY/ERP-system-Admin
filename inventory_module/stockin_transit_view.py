@@ -3,6 +3,7 @@ from main import mysql, app
 from resources.logs.logger import ErrorLogger
 from resources.payload.payload import Localtime
 from resources.transactions.bookkeeping import DebitCredit
+from resources.accounts.accounts_class import Accounts
 import uuid
 
 class TransitStock():
@@ -16,7 +17,6 @@ class TransitStock():
         # if error_messages:
         #     return jsonify({"error": error_messages}), 400
         
-        purchase_type = validated_data["purchase_type"]
         stock_purchases_id = validated_data["stock_purchases_id"]
         delivery_address = validated_data["delivery_address"]
         delivery_note_number = validated_data["delivery_note_number"]
@@ -27,8 +27,8 @@ class TransitStock():
         transporter_name = validated_data["transporter_name"] 
         transporter_id = validated_data["transporter_id"] 
         bank_account_number = validated_data["bank_account_number"] 
-        transporter_payable_account_number = validated_data["transporter_payable_account_number"] 
-        transporter_cost = validated_data["transporter_cost"] 
+        
+        transporter_cost = float(validated_data["transporter_cost"].replace(",", ""))
         delivery_date = validated_data["delivery_date"]
         
         transport_mode = validated_data["transport_mode"] 
@@ -66,9 +66,20 @@ class TransitStock():
                            "status":201}
                 return message
         
+           
+            get_transport_payable_account = Accounts().get_transport_payable_account()
+            if int(get_transport_payable_account["status"]) == 200:
+                transporter_payable_account_number = get_transport_payable_account["data"]
+            else:
+                transporter_payable_account_number = ''
+                message = {'status':402,
+                            'description':"Couldn't fetch transport payabale account!"}
+                ErrorLogger().logError(message)                                
+                return message
+                    
             #put stock in transit
-            cur.execute("""INSERT INTO products_in_transit (global_id, purchase_type, stock_purchases_id, delivery_address, delivery_note_number, delivery_date, recipient_address, recipient_name ,recipient_mobile_number, transporter_name, transporter_id, bank_account_number, transporter_payable_account_number, transporter_cost, transport_mode, registration_number, contact_name, contact_number, stock_state, notes, created_date, created_by, status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""", 
-                                                           (global_id, purchase_type, stock_purchases_id, delivery_address, delivery_note_number, delivery_date, recipient_address, recipient_name ,recipient_mobile_number, transporter_name, transporter_id, bank_account_number, transporter_payable_account_number, transporter_cost, transport_mode, registration_number, contact_name, contact_number, stock_state, notes, created_date, created_by, status))
+            cur.execute("""INSERT INTO products_in_transit (global_id, stock_purchases_id, delivery_address, delivery_note_number, delivery_date, recipient_address, recipient_name ,recipient_mobile_number, transporter_name, transporter_id, bank_account_number, transporter_payable_account_number, transporter_cost, transport_mode, registration_number, contact_name, contact_number, stock_state, notes, created_date, created_by, status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""", 
+                                                           (global_id, stock_purchases_id, delivery_address, delivery_note_number, delivery_date, recipient_address, recipient_name ,recipient_mobile_number, transporter_name, transporter_id, bank_account_number, transporter_payable_account_number, transporter_cost, transport_mode, registration_number, contact_name, contact_number, stock_state, notes, created_date, created_by, status))
             mysql.get_db().commit()
             rowcount = cur.rowcount
             if rowcount:
@@ -129,14 +140,15 @@ class TransitStock():
         try:
             status = request_data["status"]
             
-            cur.execute("""SELECT id, global_id, purchase_type, stock_purchases_id, delivery_address, delivery_note_number, delivery_date, recipient_address, recipient_name, recipient_mobile_number, transporter_name, transporter_id, bank_account_number, transporter_payable_account_number, transporter_cost, transport_mode, registration_number, contact_name, contact_number, stock_state, notes, created_date, created_by FROM products_in_transit WHERE status = %s """, (status))
+            cur.execute("""SELECT id, global_id, stock_purchases_id, delivery_address, delivery_note_number, delivery_date, recipient_address, recipient_name, recipient_mobile_number, transporter_name, transporter_id, bank_account_number, transporter_payable_account_number, transporter_cost, transport_mode, registration_number, contact_name, contact_number, stock_state, notes, created_date, created_by FROM products_in_transit WHERE status = %s """, (status))
             transits = cur.fetchall()            
             if transits:
                 response_array = []
                 
                 for transit in transits:
+                    id = transit["id"]
                     global_id = transit["global_id"]
-                    purchase_type = transit["purchase_type"] 
+                    created_by = transit["created_by"]
                     stock_purchases_id = transit["stock_purchases_id"] 
                     transporter_id = transit["transporter_id"]
                     transporter_payable_account_number = transit["transporter_payable_account_number"]
@@ -146,6 +158,24 @@ class TransitStock():
                         this_stock_state = "In Transit"
                     else:
                         this_stock_state = "Received" 
+                        
+                    transport_mode = transit["transport_mode"]
+                    
+                    cur.execute("""SELECT id, name FROM transport_modes WHERE id = %s """, (transport_mode))
+                    transport_modes = cur.fetchone()
+                    if transport_modes:
+                        modeof_transport = transport_modes['name']
+                    else:
+                        modeof_transport = ''
+                        
+                    cur.execute("""SELECT id, first_name, last_name FROM user_details WHERE user_id = %s """, (created_by))
+                    user_details = cur.fetchone()
+                    if user_details:
+                        first_name = user_details['first_name']
+                        last_name = user_details['last_name']
+                        user_name = first_name + '' + last_name
+                    else:
+                        user_name = ''
                     
                     cur.execute("""SELECT id, name FROM accounts WHERE number = %s """, (transporter_payable_account_number))
                     transporter_acc = cur.fetchone()
@@ -162,14 +192,23 @@ class TransitStock():
                         bank_account = ''
                     
                     product_details = []
-                    cur.execute("""SELECT id, model_id, quantity FROM products_in_transit_models WHERE global_id = %s """, (global_id))
+                    cur.execute("""SELECT id, model_id, quantity, quantity_received FROM products_in_transit_models WHERE products_in_transit_id = %s """, (id))
                     modelsin_transit = cur.fetchall()
                     if modelsin_transit:
                         for transit_model in modelsin_transit:
-                    
+                            quantity = float(transit_model["quantity"])
+                            quantity_received = float(transit_model["quantity_received"])
+                            
+                            pending_intransit = quantity - quantity_received
+                            if pending_intransit <0:
+                                pending_intransit = 0
+                            
+                            
                             model_details = {
                                 "model_id":transit_model["model_id"],
-                                "quantity":float(transit_model["quantity"]),
+                                "quantity":quantity,
+                                "quantity_received":quantity_received,
+                                "pending_intransit":pending_intransit
                             }
                             product_details.append(model_details)
                     
@@ -177,7 +216,6 @@ class TransitStock():
                         
                         "id": transit['id'],
                         "global_id": transit['global_id'],
-                        "purchase_type": purchase_type,
                         "stock_purchases_id": stock_purchases_id,
                         "delivery_address": transit['delivery_address'],
                         "delivery_note_number": transit['delivery_note_number'],
@@ -189,6 +227,7 @@ class TransitStock():
                         "transporter_name": transit['transporter_name'],
                         "transporter_cost": float(transit['transporter_cost']),
                         "transport_mode": transit['transport_mode'],
+                        "transport_mode_name":modeof_transport,
                         "bank_account":bank_account,
                         "transport_account":transport_account,
                         "registration_number": transit['registration_number'],
@@ -197,7 +236,8 @@ class TransitStock():
                         "notes": transit['notes'],
                         "state":this_stock_state,
                         "created_date": transit['created_date'],
-                        "created_by_id": transit['created_by']
+                        "created_by_id": transit['created_by'],
+                        "user_name":user_name
                         
                     }
                     response_array.append(response)
@@ -252,16 +292,16 @@ class TransitStock():
                 
         try:
             
-            cur.execute("""SELECT id, global_id, purchase_type, stock_purchases_id, delivery_address, delivery_note_number, delivery_date, recipient_address, recipient_name, recipient_mobile_number, transporter_name, transporter_id, bank_account_number, transporter_payable_account_number, transporter_cost, transport_mode, registration_number, contact_name, contact_number, stock_state, notes, created_date, created_by FROM products_in_transit WHERE id = %s """, (id))
+            cur.execute("""SELECT id, global_id, stock_purchases_id, delivery_address, delivery_note_number, delivery_date, recipient_address, recipient_name, recipient_mobile_number, transporter_name, transporter_id, bank_account_number, transporter_payable_account_number, transporter_cost, transport_mode, registration_number, contact_name, contact_number, stock_state, notes, created_date, created_by FROM products_in_transit WHERE id = %s """, (id))
             transit = cur.fetchone()            
             if transit:
                 
                 global_id = transit["global_id"]
-                purchase_type = transit["purchase_type"] 
                 stock_purchases_id = transit["stock_purchases_id"] 
                 transporter_id = transit["transporter_id"]
                 transporter_payable_account_number = transit["transporter_payable_account_number"]
                 bank_account_number = transit["bank_account_number"]
+                created_by = transit["created_by"]
                 stock_state = transit["stock_state"]
                 if int(stock_state) ==1:
                     this_stock_state = "In Transit"
@@ -275,6 +315,15 @@ class TransitStock():
                     transport_account = transporter_acc['name']
                 else:
                     transport_account = ''
+                    
+                cur.execute("""SELECT id, first_name, last_name FROM user_details WHERE user_id = %s """, (created_by))
+                user_details = cur.fetchone()
+                if user_details:
+                    first_name = user_details['first_name']
+                    last_name = user_details['last_name']
+                    user_name = first_name + '' + last_name
+                else:
+                    user_name = ''
                 
                 cur.execute("""SELECT id, name FROM accounts WHERE number = %s """, (bank_account_number))
                 bank_acc = cur.fetchone()
@@ -283,6 +332,15 @@ class TransitStock():
                 else:
                     bank_account = ''
                 
+                transport_mode = transit["transport_mode"]
+                    
+                cur.execute("""SELECT id, name FROM transport_modes WHERE id = %s """, (transport_mode))
+                transport_modes = cur.fetchone()
+                if transport_modes:
+                    modeof_transport = transport_modes['name']
+                else:
+                    modeof_transport = ''
+                        
                 product_details = []
                 cur.execute("""SELECT id, model_id, quantity FROM products_in_transit_models WHERE global_id = %s """, (global_id))
                 modelsin_transit = cur.fetchall()
@@ -299,7 +357,6 @@ class TransitStock():
                     
                     "id": transit['id'],
                     "global_id": transit['global_id'],
-                    "purchase_type": purchase_type,
                     "stock_purchases_id": stock_purchases_id,
                     "delivery_address": transit['delivery_address'],
                     "delivery_date": transit['delivery_date'],
@@ -311,6 +368,7 @@ class TransitStock():
                     "transporter_name": transit['transporter_name'],
                     "transporter_cost": float(transit['transporter_cost']),
                     "transport_mode": transit['transport_mode'],
+                    "transport_mode_name":modeof_transport,
                     "bank_account":bank_account,
                     "transport_account":transport_account,
                     "registration_number": transit['registration_number'],
@@ -319,7 +377,8 @@ class TransitStock():
                     "notes": transit['notes'],
                     "state":this_stock_state,
                     "created_date": transit['created_date'],
-                    "created_by_id": transit['created_by']
+                    "created_by_id": transit['created_by'],
+                    "user_name":user_name
                     
                 }
             
@@ -369,10 +428,12 @@ class TransitStock():
 
         try:  
             #update cash stock purchase details
-            cur.execute("""SELECT id, global_id, delivery_note_number, transporter_cost, transporter_payable_account_number, bank_account_number, delivery_date FROM products_in_transit WHERE status = 2 AND id = %s """, (id))
+            cur.execute("""SELECT id, stock_purchases_id, global_id, delivery_note_number, transporter_cost, transporter_payable_account_number, bank_account_number, delivery_date FROM products_in_transit WHERE status = 2 AND id = %s """, (id))
             purchase = cur.fetchone()            
             if purchase:
-                id = purchase["id"]
+                
+                
+                stock_purchases_id = purchase["stock_purchases_id"]
                 global_id = purchase["global_id"]
                 transaction_id = purchase["delivery_note_number"]
                 total_amount = float(purchase["transporter_cost"])
@@ -402,13 +463,6 @@ class TransitStock():
                 mysql.get_db().commit() 
                 rowcount = cur.rowcount
                 if rowcount:
-                    
-                    cur.execute("""SELECT stock_purchases_id FROM products_in_transit WHERE id = %s """, (id))
-                    get_transit_details = cur.fetchone()
-                    if get_transit_details:
-                        stock_purchases_id = get_transit_details["stock_purchases_id"]
-                    else:
-                        stock_purchases_id = 0
                         
                     #For each model placed in transit, update purchases records to indicated number of models delivered
                     cur.execute("""SELECT model_id, quantity FROM products_in_transit_models WHERE products_in_transit_id = %s """, (id))
@@ -426,9 +480,9 @@ class TransitStock():
                     return jsonify(message), 200  
                 
             else:
-                message = {'status':201,
+                message = {'status':404,
                            'description':'Transit stock record was not found!'}
-                return jsonify(message), 201
+                return jsonify(message), 404
                     
         #Error handling
         except Exception as error:
