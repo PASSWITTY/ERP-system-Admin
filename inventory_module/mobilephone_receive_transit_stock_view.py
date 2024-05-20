@@ -108,6 +108,46 @@ class ReceiveTransitStock():
                 response_array = []
                 
                 for transit in products_received:
+                    
+                    created_by_id = transit["created_by"]
+                    model_id = transit["model_id"]
+                    distribution_center_id = transit["distribution_center_id"]
+                    
+                    cur.execute("""SELECT id, first_name, last_name FROM user_details WHERE user_id = %s """, (created_by_id))
+                    user_details = cur.fetchone()
+                    if user_details:
+                        first_name = user_details['first_name']
+                        last_name = user_details['last_name']
+                        user_name = first_name + '' + last_name
+                    else:
+                        user_name = ''
+                        
+                    #fetch distribution center details
+                    cur.execute("""SELECT name FROM distribution_centers WHERE id = %s """, (distribution_center_id))
+                    user_details = cur.fetchone()            
+                    if user_details:
+                        distribution_center_name = user_details["name"]
+                       
+                    else:
+                        distribution_center_name = ''
+                        message = {"description":"Failed to fetch distribution center details!",
+                                "status":201}
+                        return message
+                        
+                    cur.execute("""SELECT id, name, ram, internal_storage, main_camera, front_camera, processor, display FROM product_mobile_phones_models WHERE id = %s """, (model_id))
+                    phone_modeldetails = cur.fetchone()
+                    if phone_modeldetails:
+                            
+                        model_name = phone_modeldetails['name']
+                        ram = phone_modeldetails['ram']
+                        internal_storage = phone_modeldetails['internal_storage']
+                        main_camera = phone_modeldetails['main_camera']
+                        front_camera = phone_modeldetails['front_camera']
+                        display = phone_modeldetails['display']
+                        processor = phone_modeldetails['processor']
+                    else:
+                        model_name = ''
+                        
                     global_id = transit["global_id"]
                     products_in_transit_id = transit["products_in_transit_id"] 
                     distribution_center_id = transit["distribution_center_id"] 
@@ -119,7 +159,7 @@ class ReceiveTransitStock():
                     received_date = transit["received_date"]
                     remarks = transit["remarks"]
                     created_date = transit["created_date"]
-                    created_by_id = transit["created_by"]
+                    created_by_id = created_by_id
                     
                     stock_state = transit["stock_state"]
                     if int(stock_state) ==1:
@@ -136,13 +176,22 @@ class ReceiveTransitStock():
                         "model_id": model_id,
                         "imei_1": imei_1,
                         "imei_2": imei_2,
+                        "model_name":model_name,
+                        "ram":ram,
+                        "internal_storage":internal_storage,
+                        "main_camera":main_camera,
+                        "front_camera":front_camera,
+                        "display":display,
+                        "processor":processor,
                         "qr_code_id": qr_code_id,
                         "warranty_period":warranty_period,
+                        "distribution_center_name":distribution_center_name,
                         "received_date":received_date,
                         "remarks": remarks,
                         "state":this_stock_state,
                         "created_date": created_date,
-                        "created_by_id": created_by_id
+                        "created_by_id": created_by_id,
+                        "user_name":user_name
                         
                     }
                     response_array.append(response)
@@ -217,6 +266,41 @@ class ReceiveTransitStock():
                     this_stock_state = "Available"
                 else:
                     this_stock_state = "Dispatched" 
+                    
+                cur.execute("""SELECT id, first_name, last_name FROM user_details WHERE user_id = %s """, (created_by_id))
+                user_details = cur.fetchone()
+                if user_details:
+                    first_name = user_details['first_name']
+                    last_name = user_details['last_name']
+                    user_name = first_name + '' + last_name
+                else:
+                    user_name = ''
+                    
+                #fetch distribution center details
+                cur.execute("""SELECT name FROM distribution_centers WHERE id = %s """, (distribution_center_id))
+                user_details = cur.fetchone()            
+                if user_details:
+                    distribution_center_name = user_details["name"]
+                    
+                else:
+                    distribution_center_name = ''
+                    message = {"description":"Failed to fetch distribution center details!",
+                            "status":201}
+                    return message
+            
+                cur.execute("""SELECT id, name, ram, internal_storage, main_camera, front_camera, processor, display FROM product_mobile_phones_models WHERE id = %s """, (model_id))
+                phone_modeldetails = cur.fetchone()
+                if phone_modeldetails:
+                        
+                    model_name = phone_modeldetails['name']
+                    ram = phone_modeldetails['ram']
+                    internal_storage = phone_modeldetails['internal_storage']
+                    main_camera = phone_modeldetails['main_camera']
+                    front_camera = phone_modeldetails['front_camera']
+                    display = phone_modeldetails['display']
+                    processor = phone_modeldetails['processor']
+                else:
+                    model_name = ''
                                     
                 response = {
                     
@@ -228,12 +312,21 @@ class ReceiveTransitStock():
                     "imei_1": imei_1,
                     "imei_2": imei_2,
                     "qr_code_id": qr_code_id,
+                    "model_name":model_name,
+                    "ram":ram,
+                    "internal_storage":internal_storage,
+                    "main_camera":main_camera,
+                    "front_camera":front_camera,
+                    "display":display,
+                    "processor":processor,
                     "warranty_period":warranty_period,
+                    "distribution_center_name":distribution_center_name,
                     "received_date":received_date,
                     "remarks": remarks,
                     "state":this_stock_state,
                     "created_date": created_date,
-                    "created_by_id": created_by_id
+                    "created_by_id": created_by_id,
+                    "user_name":user_name
                 }
             
                 return response
@@ -322,5 +415,169 @@ class ReceiveTransitStock():
         finally:
             cur.close()
 
+    def list_devices(self, user):
+        
+        request_data = request.get_json() 
+        
+        if request_data == None:
+            message = {'status':402,
+                       'error':'sp_a03',
+                       'description':'Request data is missing some details!'}
+            ErrorLogger().logError(message)
+            return jsonify(message)
+       
+        try:
+            cur = mysql.get_db().cursor()
+                    
+        except:
+            message = {'status':500,
+                        'error':'sp_a14',
+                        'description':"Couldn't connect to the Database!"}
+            ErrorLogger().logError(message)
+            return message
+                
+        try:
+            status = request_data["status"]
+            
+            models = []
+            cur.execute("""SELECT a.quantity AS quantity, a.model_id AS model_id, a.quantity_received AS quantity_received, b.delivery_note_number AS delivery_note_number, b.delivery_address AS delivery_address, a.products_in_transit_id AS products_in_transit_id FROM products_in_transit_models AS a INNER JOIN products_in_transit AS b ON b.id = a.products_in_transit_id WHERE a.status = %s """, (status,))
+            transit_stock = cur.fetchall()
+            if transit_stock:
+                count = 0
+                for row in transit_stock:
+                    count = count + 1
+                    products_in_transit_id = row["products_in_transit_id"]
+                    quantity = row["quantity"]
+                    model_id = row["model_id"]
+                    quantity_received = row["quantity_received"]
+                    delivery_address = row["delivery_address"]
+                    delivery_note_number = row["delivery_note_number"]
+                    
+                    
+                    cur.execute("""SELECT id, global_id, stock_purchases_id, delivery_address, delivery_note_number, delivery_date, recipient_address, recipient_name, recipient_mobile_number, transporter_name, transporter_id, bank_account_number, transporter_payable_account_number, transporter_cost, transport_mode, registration_number, contact_name, contact_number, stock_state, notes, created_date, created_by FROM products_in_transit WHERE id = %s """, (products_in_transit_id))
+                    transit = cur.fetchone()            
+                    if transit:
+                        
+                        global_id = transit["global_id"]
+                        stock_purchases_id = transit["stock_purchases_id"] 
+                        
+                        transporter_payable_account_number = transit["transporter_payable_account_number"]
+                        bank_account_number = transit["bank_account_number"]
+                        created_by = transit["created_by"]
+                        stock_state = transit["stock_state"]
+                        if int(stock_state) ==1:
+                            this_stock_state = "In Transit"
+                        else:
+                            this_stock_state = "Received"
+                            
+                        cur.execute("""SELECT id, name, ram, internal_storage, main_camera, front_camera, processor, display FROM product_mobile_phones_models WHERE id = %s """, (model_id))
+                        phone_modeldetails = cur.fetchone()
+                        if phone_modeldetails:
+                            
+                            model_name = phone_modeldetails['name']
+                            ram = phone_modeldetails['ram']
+                            internal_storage = phone_modeldetails['internal_storage']
+                            main_camera = phone_modeldetails['main_camera']
+                            front_camera = phone_modeldetails['front_camera']
+                            display = phone_modeldetails['display']
+                            processor = phone_modeldetails['processor']
+                        else:
+                            model_name = ''
+                        
+                        cur.execute("""SELECT id, name FROM accounts WHERE number = %s """, (transporter_payable_account_number))
+                        transporter_acc = cur.fetchone()
+                        if transporter_acc:
+                            
+                            transport_account = transporter_acc['name']
+                        else:
+                            transport_account = ''
+                            
+                        cur.execute("""SELECT id, first_name, last_name FROM user_details WHERE user_id = %s """, (created_by))
+                        user_details = cur.fetchone()
+                        if user_details:
+                            first_name = user_details['first_name']
+                            last_name = user_details['last_name']
+                            user_name = first_name + '' + last_name
+                        else:
+                            user_name = ''
+                        
+                        cur.execute("""SELECT id, name FROM accounts WHERE number = %s """, (bank_account_number))
+                        bank_acc = cur.fetchone()
+                        if bank_acc:
+                            bank_account = bank_acc['name']
+                        else:
+                            bank_account = ''
+                        
+                        transport_mode = transit["transport_mode"]
+                            
+                        cur.execute("""SELECT id, name FROM transport_modes WHERE id = %s """, (transport_mode))
+                        transport_modes = cur.fetchone()
+                        if transport_modes:
+                            modeof_transport = transport_modes['name']
+                        else:
+                            modeof_transport = ''
+                                
+                        response = {
+                            
+                            "id": transit['id'],
+                            "global_id": global_id,
+                            "model_id": model_id,
+                            "model_name":model_name,
+                            "ram":ram,
+                            "internal_storage":internal_storage,
+                            "main_camera":main_camera,
+                            "front_camera":front_camera,
+                            "display":display,
+                            "processor":processor,
+                            "delivery_address": delivery_address,
+                            "delivery_note_number": delivery_note_number,
+                            "quantity_received": float(quantity_received),
+                            "quantity":float(quantity),
+                            "stock_purchases_id": stock_purchases_id,
+                            "delivery_address": transit['delivery_address'],
+                            "delivery_date": transit['delivery_date'],
+                            "delivery_note_number": transit['delivery_note_number'],
+                            "recipient_address": transit['recipient_address'],
+                            "recipient_name": transit['recipient_name'],
+                            "recipient_mobile_number": transit['recipient_mobile_number'],
+                            "transporter_name": transit['transporter_name'],
+                            "transporter_cost": float(transit['transporter_cost']),
+                            "transport_mode": transit['transport_mode'],
+                            "transport_mode_name":modeof_transport,
+                            "bank_account":bank_account,
+                            "transport_account":transport_account,
+                            "registration_number": transit['registration_number'],
+                            "contact_name": transit['contact_name'],
+                            "contact_number": transit['contact_number'],
+                            "notes": transit['notes'],
+                            "state":this_stock_state,
+                            "created_date": transit['created_date'],
+                            "created_by_id": transit['created_by'],
+                            "user_name":user_name
+                            
+                        }
+                        models.append(response)
+                    
+                message = {'status':200,
+                        'response':models, 
+                        'description':'Products in transit records were fetched successfully!'
+                    }   
+                return jsonify(message), 200
+            else:             
+                message = {'status':404,
+                            'error':'sp_a04',
+                            'description':'Failed to fetch products in transit !'
+                        }   
+                return jsonify(message), 404 
+            
+        #Error handling
+        except Exception as error:
+            message = {'status':501,
+                       'error':'sp_a05',
+                       'description':'Failed to retrieve products in transit record from database.' + format(error)}
+            ErrorLogger().logError(message),
+            return jsonify(message), 501  
+        finally:
+            cur.close()
      
    

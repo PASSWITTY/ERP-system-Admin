@@ -463,6 +463,9 @@ class TransitStock():
                 mysql.get_db().commit() 
                 rowcount = cur.rowcount
                 if rowcount:
+                    
+                    cur.execute("""UPDATE products_in_transit_models set status=1 WHERE products_in_transit_id = %s """, (id))
+                    mysql.get_db().commit() 
                         
                     #For each model placed in transit, update purchases records to indicated number of models delivered
                     cur.execute("""SELECT model_id, quantity FROM products_in_transit_models WHERE products_in_transit_id = %s """, (id))

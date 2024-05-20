@@ -29,6 +29,12 @@ def approve_received_stock():
     user = current_user
     return ReceiveTransitStock().approve_received_stock(user)
 
+@mobilephones_receive_transit_stock_bp.route("/list-devices", methods=["POST"])
+@jwt_required()
+def list_devices():
+    user = current_user
+    return ReceiveTransitStock().list_devices(user)
+
 
 
 
