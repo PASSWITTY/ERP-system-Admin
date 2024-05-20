@@ -371,7 +371,6 @@ class ManagerDistribution():
         finally:
             cur.close()
             
-            
     def receive_dispatched_stock(self, user):
         #Get the request data 
         request_data = request.get_json()       
