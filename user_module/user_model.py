@@ -444,7 +444,85 @@ class User():
             return jsonify(message), 501
         finally:
             cur.close()
+    
+    def list_users_by_category(self, user):
         
+        request_data = request.get_json() 
+        
+        if request_data == None:
+            message = {'status':402,
+                       'error':'sp_a03',
+                       'description':'Request data is missing some details!'}
+            ErrorLogger().logError(message)
+            return jsonify(message), 402
+       
+        try:
+            cur = mysql.get_db().cursor()
+                    
+        except:
+            message = {'status':500,
+                        'error':'sp_a14',
+                        'description':"Couldn't connect to the Database!"}
+            ErrorLogger().logError(message)
+            return message, 500
+                
+        try:
+            status = request_data["status"]
+            category = request_data["category"]
+        
+            # number = 0
+            cur.execute("""SELECT a.id AS id, a.username AS username, a.email AS email, a.contact AS contact, a.user_type AS user_type, b.first_name AS first_name, b.middle_name AS middle_name, b.last_name AS last_name, b.id_number AS id_number FROM users AS a INNER JOIN user_details AS b ON a.id=b.user_id WHERE a.status = %s AND b.user_category_id = %s""", (status, category))
+            users = cur.fetchall()            
+            if users:
+                response_array = []
+                
+                for user in users:
+                    user_id = user['id']
+                    first_name = user['first_name']
+                    middle_name = user['middle_name']
+                    last_name = user['last_name']
+                    
+                    name = first_name + ' ' + middle_name + ' ' + last_name
+                    
+                            
+                    response = {
+                        "id": user_id,
+                        "username": user['username'],
+                        "email": user['email'],
+                        "contact": user['contact'],
+                        "user_type": user['user_type'],
+                        "first_name": user['first_name'],
+                        "middle_name": user['middle_name'],
+                        "last_name": user['last_name'],
+                        "id_number": user['id_number'],
+                        "name":name
+                        
+                        
+                    }
+                    response_array.append(response)
+                message = {'status':200,
+                            'response':response_array, 
+                            'description':'User records were fetched successfully!'
+                        }   
+                return jsonify(message), 200
+                        
+            else:
+                             
+                message = {'status':404,
+                            'description':'User records were not found!'
+                        }   
+                return jsonify(message), 404             
+            
+        #Error handling
+        except Exception as error:
+            message = {'status':501,
+                       'error':'sp_a05',
+                       'description':'Failed to retrieve user record from database.' + format(error)}
+            ErrorLogger().logError(message),
+            return jsonify(message), 501
+        finally:
+            cur.close()
+            
     def get_user_details(self, user):
         
         request_data = request.get_json() 

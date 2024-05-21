@@ -38,6 +38,12 @@ def list_users():
     user = current_user
     return User().list_users(user)
 
+@user_bp.route("/list-users-by-category", methods=["POST"])
+@jwt_required()
+def list_users_by_category():
+    user = current_user
+    return User().list_users_by_category(user)
+
 @user_bp.route("/get-user-details", methods=["POST"])
 @jwt_required()
 def get_user_details():

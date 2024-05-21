@@ -189,6 +189,7 @@ class ReceiveTransitStock():
                         "received_date":received_date,
                         "remarks": remarks,
                         "state":this_stock_state,
+                        "stock_state":stock_state,
                         "created_date": created_date,
                         "created_by_id": created_by_id,
                         "user_name":user_name
