@@ -5,36 +5,50 @@ from flask_jwt_extended import current_user, jwt_required
 
 manager_distribution_bp = Blueprint("manager_distribution_blueprint", __name__)
 
-@manager_distribution_bp.route("/dispatch-stock", methods=["POST"])
+@manager_distribution_bp.route("/list-stock-to-receive", methods=["POST"])
 @jwt_required()
-def dispatch_stock():
+def list_stock_to_receive():
     user = current_user
-    return ManagerDistribution().dispatch_stock(user)
+    return ManagerDistribution().list_stock_to_receive(user)
 
-@manager_distribution_bp.route("/list-dispatched-stock", methods=["POST"])
+@manager_distribution_bp.route("/list-stock-available", methods=["POST"])
 @jwt_required()
-def list_dispatched_stock():
+def list_stock_available():
     user = current_user
-    return ManagerDistribution().list_dispatched_stock(user)
+    return ManagerDistribution().list_stock_available(user)
 
-@manager_distribution_bp.route("/get-dispatched-stock-details", methods=["POST"])
+@manager_distribution_bp.route("/manager-received-dispatched-stock", methods=["POST"])
 @jwt_required()
-def get_dispatched_stock_details():
+def manager_received_dispatched_stock():
     user = current_user
-    return ManagerDistribution().get_dispatched_stock_details(user)
+    return ManagerDistribution().manager_received_dispatched_stock(user)
 
-@manager_distribution_bp.route("/approve-dispatched-stock", methods=["POST"])
+@manager_distribution_bp.route("/create-teamleader-dispatch", methods=["POST"])
 @jwt_required()
-def approve_dispatched_stock():
+def create_teamleader_dispatch():
     user = current_user
-    return ManagerDistribution().approve_dispatched_stock(user)
+    return ManagerDistribution().create_teamleader_dispatch(user)
 
-
-@manager_distribution_bp.route("/receive-dispatched-stock", methods=["POST"])
+@manager_distribution_bp.route("/list-teamleader-dispatched-stock", methods=["POST"])
 @jwt_required()
-def receive_dispatched_stock():
+def list_teamleader_dispatched_stock():
     user = current_user
-    return ManagerDistribution().receive_dispatched_stock(user)
+    return ManagerDistribution().list_teamleader_dispatched_stock(user)
+
+# @manager_distribution_bp.route("/get-teamleader-dispatched-stock-details", methods=["POST"])
+# @jwt_required()
+# def get_teamleader_dispatched_stock_details():
+#     user = current_user
+#     return ManagerDistribution().get_teamleader_dispatched_stock_details(user)
+
+@manager_distribution_bp.route("/approve-teamleader-dispatched-stock", methods=["POST"])
+@jwt_required()
+def approve_teamleader_dispatched_stock():
+    user = current_user
+    return ManagerDistribution().approve_teamleader_dispatched_stock(user)
+
+
+
 
 
 

@@ -448,59 +448,7 @@ class StockistDistribution():
         finally:
             cur.close()
             
-    # def manager_received_dispatched_stock(self, user):
-    #     #Get the request data 
-    #     request_data = request.get_json()       
-        
-    #     validated_data = request_data
-    #     # validated_data, error_messages = self.reg_supplier.serialize_register_data(data)
-    #     # if error_messages:
-    #     #     return jsonify({"error": error_messages}), 400
-        
-    #     manager_remarks = validated_data["manager_remarks"]
-    #     id = validated_data["id"]
-    #     manager_received_date = request_data["manager_received_date"]
-        
-    #     # Open A connection to the database
-    #     try:
-    #         cur =  mysql.get_db().cursor()
-    #     except:
-    #         message = {'status':500,
-    #                    'error':'sp_a11',
-    #                    'description':"Couldn't connect to the Database!"}
-    #         ErrorLogger().logError(message)
-    #         return message
-    #     #Save data to the database
-        
-    #     try:
-    #         stock_state = 1 #'stock received and is available'
-            
-    #         created_date = Localtime().gettime()
-    #         created_by = user['id']
 
-    #         #store manager received stock details
-            
-    #         cur.execute("""UPDATE mobile_phones_manager_stock set manager_remarks = %s, manager_received_date =%s, stock_state = %s, update_date = %s, updated_by = %s WHERE stock_state = 0 AND id = %s """, (manager_remarks, manager_received_date, stock_state, created_date, created_by, id))
-    #         mysql.get_db().commit()
-    #         rowcount = cur.rowcount
-    #         if rowcount:
-    #             message = {"description":"Mobile phone was received by manager successfully",
-    #                         "status":200}
-    #             return message
-    #         else:
-    #             message = {"description":"Mobile phone record was not found!",
-    #                         "status":404}
-    #             return message
-
-    #     #Error handling
-    #     except Exception as error:
-    #         message = {'status':501, 
-    #                    'error':'sp_a02',
-    #                    'description':'Manager failed to receive mobile phone!. Error description ' + format(error)}
-    #         ErrorLogger().logError(message)
-    #         return jsonify(message) 
-    #     finally:
-    #         cur.close()
 
      
    
