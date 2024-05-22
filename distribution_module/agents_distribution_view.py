@@ -197,13 +197,14 @@ class AgentsDistribution():
             return message
                 
         try:
+            count = 0
             cur.execute("""SELECT id, global_id, mobilephone_teamleaderstock_id, distribution_center_id, agent_id, teamleader_dispatch_date, agent_received_date, teamleader_remarks, agent_remarks, stock_state, created_date, created_by FROM mobile_phones_agents_stock WHERE stock_state = 1 AND status = 1 """)
             products_received = cur.fetchall()            
             if products_received:
                 response_array = []
                 
                 for transit in products_received:
-                    
+                    count = count + 1
                     global_id = transit["global_id"]
                     created_by_id = transit["created_by"]
                     agent_id = transit["agent_id"]
@@ -296,6 +297,7 @@ class AgentsDistribution():
                     response = {
                         
                         "id": transit['id'],
+                        "count":count,
                         "global_id": global_id,
                         "mobilephone_stock_received_id": mobilephone_stock_received_id,
                         "distribution_center_id": distribution_center_id,

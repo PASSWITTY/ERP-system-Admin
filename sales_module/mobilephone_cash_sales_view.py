@@ -17,7 +17,7 @@ class MobilePhoneCashSales():
         #     return jsonify({"error": error_messages}), 400
         
         sales_date = validated_data["sales_date"]
-        payment_mothod = validated_data["payment_mothod"]
+        payment_method = validated_data["payment_method"]
         customer_name = validated_data["customer_name"]
         customer_number = validated_data["customer_mobile_number"]
         customer_email = validated_data["customer_email"]
@@ -147,8 +147,8 @@ class MobilePhoneCashSales():
                 return message
             
             #mobile phone cash sales
-            cur.execute("""INSERT INTO mobile_phone_cash_sales (distribution_center_id, agent_id,        total_buying_price, total_selling_price,        total_discount, total_net_sales_amount, sales_date, payment_mothod, customer_name, customer_number, customer_email, bank_account, receivable_account, tax_expense_account, tax_payable_account, sales_remarks, created_date, created_by, status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""", 
-                                                               (distribution_center_id, agent_id, total_buying_price_amount,  total_sales_amount, total_discount_amount, total_net_sales_amount, sales_date, payment_mothod, customer_name, customer_number, customer_email, bank_account, receivable_account, tax_expense_account, tax_payable_account, sales_remarks, created_date,   agent_id, status))
+            cur.execute("""INSERT INTO mobile_phone_cash_sales (distribution_center_id, agent_id,        total_buying_price, total_selling_price,        total_discount, total_net_sales_amount, sales_date, payment_method, customer_name, customer_number, customer_email, bank_account, receivable_account, tax_expense_account, tax_payable_account, sales_remarks, created_date, created_by, status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""", 
+                                                               (distribution_center_id, agent_id, total_buying_price_amount,  total_sales_amount, total_discount_amount, total_net_sales_amount, sales_date, payment_method, customer_name, customer_number, customer_email, bank_account, receivable_account, tax_expense_account, tax_payable_account, sales_remarks, created_date,   agent_id, status))
             mysql.get_db().commit()
             rowcount = cur.rowcount
             if rowcount:
@@ -310,7 +310,7 @@ class MobilePhoneCashSales():
         try:
             status = request_data["status"]
         
-            cur.execute("""SELECT id, distribution_center_id, agent_id, total_buying_price, total_selling_price, total_discount, total_net_sales_amount, sales_date, payment_mothod, customer_name, customer_number, customer_email, bank_account, receivable_account, tax_expense_account, tax_payable_account, sales_remarks, created_date, created_by FROM mobile_phone_cash_sales WHERE status = %s """, (status))
+            cur.execute("""SELECT id, distribution_center_id, agent_id, total_buying_price, total_selling_price, total_discount, total_net_sales_amount, sales_date, payment_method, customer_name, customer_number, customer_email, bank_account, receivable_account, tax_expense_account, tax_payable_account, sales_remarks, created_date, created_by FROM mobile_phone_cash_sales WHERE status = %s """, (status))
             sales = cur.fetchall()            
             if sales:
                 mobile_sales = []
@@ -321,6 +321,36 @@ class MobilePhoneCashSales():
                     total_selling_price = float(sale['total_selling_price'])
                     total_discount = float(sale['total_discount'])
                     total_net_sales_amount = float(sale['total_net_sales_amount'])
+                    created_by = sale["created_by"]
+                    distribution_center_id = sale["distribution_center_id"]
+                    payment_method = sale['payment_method']
+                    
+                    cur.execute("""SELECT id, first_name, last_name FROM user_details WHERE user_id = %s """, (created_by))
+                    agent_details = cur.fetchone()
+                    if agent_details:
+                        agent_first_name = agent_details['first_name']
+                        agent_last_name = agent_details['last_name']
+                        agent_user_name = agent_first_name + '' + agent_last_name
+                    else:
+                        agent_user_name = ''
+                        
+                    #fetch payment methods 
+                    cur.execute("""SELECT name FROM payments_modes WHERE id = %s """, (payment_method))
+                    payments_mode = cur.fetchone()            
+                    if payments_mode:
+                        payment_method_name = payments_mode['name']
+                    
+                    #fetch distribution center details
+                    cur.execute("""SELECT name FROM distribution_centers WHERE id = %s """, (distribution_center_id))
+                    user_details = cur.fetchone()            
+                    if user_details:
+                        distribution_center_name = user_details["name"]
+                       
+                    else:
+                        distribution_center_name = ''
+                        message = {"description":"Failed to fetch distribution center details!",
+                                "status":201}
+                        return message
                     
                     device_sales_details = []
                     cur.execute("""SELECT id, global_id, model_id, imei_1, imei_2, qr_code_id, stock_account, cost_of_service_account, income_account, discount_account, buying_price, selling_price, discount, final_price, vat_amount, warranty_period FROM mobile_phone_cash_sales_model_details WHERE mobile_phone_cash_sales_id = %s """, (id))
@@ -343,9 +373,27 @@ class MobilePhoneCashSales():
                             vat_amount = float(sales_detail["vat_amount"])
                             warranty_period = sales_detail["warranty_period"]
                             
+                            cur.execute("""SELECT id, name, ram, internal_storage, main_camera, front_camera, processor, display FROM product_mobile_phones_models WHERE id = %s """, (model_id))
+                            phone_modeldetails = cur.fetchone()
+                            if phone_modeldetails:
+                                    
+                                model_name = phone_modeldetails['name']
+                                ram = phone_modeldetails['ram']
+                                internal_storage = phone_modeldetails['internal_storage']
+                                main_camera = phone_modeldetails['main_camera']
+                                front_camera = phone_modeldetails['front_camera']
+                                display = phone_modeldetails['display']
+                                processor = phone_modeldetails['processor']
+                            else:
+                                model_name = ''
+                            
                             sales_details_res = {
                                 "global_id":global_id,
                                 "model_id":model_id,
+                                "model_name":model_name,
+                                "ram":ram,
+                                "internal_storage":internal_storage,
+                                "main_camera":main_camera,
                                 "imei_1":imei_1,
                                 "imei_2":imei_2,
                                 "qr_code_id":qr_code_id,
@@ -365,14 +413,15 @@ class MobilePhoneCashSales():
                     
                     response = {
                         "id": sale['id'],
-                        "distribution_center_id": sale['distribution_center_id'],
+                        "distribution_center_id": distribution_center_id,
+                        "distribution_center_name": distribution_center_name,
                         "agent_id": sale['agent_id'],
                         "total_buying_price": total_buying_price,
                         "total_selling_price": total_selling_price,
                         "total_discount": total_discount,
                         "total_net_sales_amount": total_net_sales_amount,
                         "sales_date": sale['sales_date'],
-                        "payment_mothod": sale['payment_mothod'],
+                        "payment_method": payment_method_name,
                         "customer_name": sale['customer_name'],
                         "customer_number": sale['customer_number'],
                         "customer_email": sale['customer_email'],
@@ -383,6 +432,7 @@ class MobilePhoneCashSales():
                         "sales_remarks":sale['sales_remarks'],
                         "created_date": sale['created_date'],
                         "created_by_id": sale['created_by'],
+                        "agent_user_name":agent_user_name,
                         "device_sales_details":device_sales_details
                     }
                     mobile_sales.append(response)
@@ -436,7 +486,7 @@ class MobilePhoneCashSales():
         try:
             id = request_data["id"]
         
-            cur.execute("""SELECT id, distribution_center_id, agent_id, total_buying_price, total_selling_price, total_discount, total_net_sales_amount, sales_date, payment_mothod, customer_name, customer_number, customer_email, bank_account, receivable_account, tax_expense_account, tax_payable_account, sales_remarks, created_date, created_by FROM mobile_phone_cash_sales WHERE id = %s """, (id))
+            cur.execute("""SELECT id, distribution_center_id, agent_id, total_buying_price, total_selling_price, total_discount, total_net_sales_amount, sales_date, payment_method, customer_name, customer_number, customer_email, bank_account, receivable_account, tax_expense_account, tax_payable_account, sales_remarks, created_date, created_by FROM mobile_phone_cash_sales WHERE id = %s """, (id))
             sale = cur.fetchone()            
             if sale:
                 
@@ -496,7 +546,7 @@ class MobilePhoneCashSales():
                     "total_discount": total_discount,
                     "total_net_sales_amount": total_net_sales_amount,
                     "sales_date": sale['sales_date'],
-                    "payment_mothod": sale['payment_mothod'],
+                    "payment_method": sale['payment_method'],
                     "customer_name": sale['customer_name'],
                     "customer_number": sale['customer_number'],
                     "customer_email": sale['customer_email'],
@@ -561,7 +611,7 @@ class MobilePhoneCashSales():
         try:  
             
             #select sales record details 
-            cur.execute("""SELECT id, distribution_center_id, agent_id, total_buying_price, total_selling_price, total_discount, total_net_sales_amount, sales_date, payment_mothod, customer_name, customer_number, customer_email, bank_account, receivable_account, tax_expense_account, tax_payable_account, created_date, created_by FROM mobile_phone_cash_sales WHERE id = %s """, (id))
+            cur.execute("""SELECT id, distribution_center_id, agent_id, total_buying_price, total_selling_price, total_discount, total_net_sales_amount, sales_date, payment_method, customer_name, customer_number, customer_email, bank_account, receivable_account, tax_expense_account, tax_payable_account, created_date, created_by FROM mobile_phone_cash_sales WHERE id = %s """, (id))
             sale = cur.fetchone()            
             if sale:
                 transaction_id = 'Cash Sale'
