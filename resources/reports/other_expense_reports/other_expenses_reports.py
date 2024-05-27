@@ -15,7 +15,7 @@ class OtherExpensesReports():
          #Try except block to handle data extraction
         try:                        
             #Get other expense accounts            
-            other_expense = 18
+            other_expense = 23
 
             total_otherexpense_accounts = []
             otherexpense_data = []

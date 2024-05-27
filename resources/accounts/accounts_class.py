@@ -88,7 +88,7 @@ class Accounts():
            
             for default_curr in curr_res:
                 currency = default_curr['id']  
-
+            
             #get account type name
             cur.execute("""SELECT a.name, a.id, p.id AS class_id, p.main_type_name AS class_name FROM accounts_types as a INNER JOIN account_main_types As p ON a.first_layer_id = p.id WHERE a.id= %s""", [typeId])
             typedetails = cur.fetchone()
@@ -104,7 +104,8 @@ class Accounts():
             categoryName = catdetails['name']     
             dateCreated = datetime.now()
             
-            cur.execute("""INSERT INTO accounts (id, name, reference_no, balance, number, type, type_name, type_id, category_name, category_id, sub_category_id, class_name, class_id, owner_id, entity_id, currency, mainaccount, description, notes, datecreated, createdby, status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",  (accountId, accountName, referenceNumber, openingBalance, accountNumber, type, typeName, typeId, categoryName, categoryId, subCategoryId, className, classId, ownerid, entityid, currency, mainaccount, description, notes, dateCreated, createdby, status))
+            cur.execute("""INSERT INTO accounts (id,        name,    reference_no,        balance,        number, type, type_name, type_id, category_name, category_id, sub_category_id, class_name, class_id, owner_id, entity_id, currency, mainaccount, description, notes, datecreated, createdby, status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",  
+                                         (accountId, accountName, referenceNumber, openingBalance, accountNumber, type,  typeName,  typeId,  categoryName, categoryId,    subCategoryId,  className,  classId,  ownerid,  entityid, currency, mainaccount, description, notes, dateCreated, createdby, status))
             mysql.get_db().commit()
           
             message = {"description":"Account was created successfully",
@@ -592,7 +593,7 @@ class Accounts():
                     cur.execute("""INSERT INTO generate_expenses_account_numbers (number, date_created) VALUES (%s, %s)""",(account_number, date_created))
                     mysql.get_db().commit() 
                     account_number = str(cur.lastrowid)
-            
+               
             elif typeId ==23:#generate other expenses account
                 
                 cur.execute("""SELECT number FROM generate_otherexpenses_account_numbers ORDER BY number DESC LIMIT 1""")

@@ -18,7 +18,8 @@ class ExpensesReports():
          #Try except block to handle data extraction
         try:                        
             #Get expense accounts            
-            expensestype = 16
+            expensestype = 22 
+            taxexpensetype = 25 
 
             total_expense_accounts = []
             expense_data = []
@@ -26,12 +27,12 @@ class ExpensesReports():
             status = details['status']
 
             #Get total asset Balance
-            cur.execute("""SELECT sum(balance) totalexpense FROM accounts WHERE status = %s AND type = %s ORDER BY id ASC""", [status, expensestype])
+            cur.execute("""SELECT sum(balance) totalexpense FROM accounts WHERE status = %s AND (type = %s OR type = %s) ORDER BY id ASC""", [status, expensestype, taxexpensetype])
             totalexpense = cur.fetchone()
 
             total_expense = float(totalexpense['totalexpense'])
 
-            cur.execute("""SELECT id, reference_no, number, name, balance FROM accounts WHERE status = %s AND type = %s ORDER BY id ASC""", [status, expensestype])
+            cur.execute("""SELECT id, reference_no, number, name, balance FROM accounts WHERE status = %s AND (type = %s OR type = %s) ORDER BY id ASC""", [status, expensestype, taxexpensetype])
             expenses = cur.fetchall()
 
             expense_accounts = []

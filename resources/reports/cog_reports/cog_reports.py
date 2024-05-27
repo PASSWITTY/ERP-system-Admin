@@ -18,7 +18,7 @@ class CogReports():
          #Try except block to handle data extraction
         try:                        
             #Get cog accounts            
-            cogtype = 15
+            cogtype = 21
 
             total_cog_accounts = []
             cog_data = []

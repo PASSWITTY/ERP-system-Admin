@@ -32,11 +32,11 @@ class Accounting():
                            "status":200}
                 return jsonify(message)
             else:
-                message = {'status':201,
+                message = {'status':501,
                            'error':'aa_a11',
                            'description':api_response["description"]}
                 ErrorLogger().logError(message)
-                return jsonify(message), 201
+                return jsonify(message), 501
             
         except Exception as error:
             message = {'status':501,
@@ -59,7 +59,7 @@ class Accounting():
             type_Id = int(account["accountType"])
         else:
             type_Id = 0
-            
+        
         categoryId = account["accountCategory"]
         sub_category = account["accountSubCategory"]
         mainaccount = account["main_account"]
@@ -73,6 +73,7 @@ class Accounting():
         status = account["status"]
 
         typeId = type_Id     
+        
         accountNumber = Accounts().accountNumber(typeId) 
         accountId = UniqueNumber().accountId()
         
@@ -511,7 +512,7 @@ class Accounting():
                        'description':"Couldn't connect to the Database!"}
             ErrorLogger().logError(message)
             return jsonify(message)
-        # print("select")
+       
         try:
             cur.execute("""SELECT id, name, reference_no, type, number, balance, owner_id FROM accounts WHERE type_id = %s AND status = %s """, [type, status])
             results = cur.fetchall()
@@ -558,7 +559,7 @@ class Accounting():
                        'description':"Couldn't connect to the Database!"}
             ErrorLogger().logError(message)
             return jsonify(message)
-        # print("select")
+       
         try:
             cur.execute("""SELECT account_number from default_accounts WHERE default_type_number = 9 AND default_status = 1 """)
             results = cur.fetchone()

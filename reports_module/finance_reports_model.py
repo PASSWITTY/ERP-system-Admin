@@ -5,9 +5,16 @@ from resources.payload.payload import Localtime
 from resources.middleware.tokens.jwt import sign_token, refresh_token, sign_permissions 
 from resources.logs.logger import ErrorLogger
 from resources.reports.assets_reports.assets_reports import AssetsReports
-from resources.reports.liability_reports.liability_reports import LiabilityReports 
+from resources.reports.liability_reports.liability_reports import LiabilityReports  
 from resources.reports.equity_reports.equity_reports import EquityReports
-from resources.reports.income_statements.income_statement_total import IncomeStatement
+from resources.reports.income_statements.income_statement_total import IncomeStatement   
+from resources.reports.revenue_reports.revenue_reports import RevenueReports
+from resources.reports.discount_reports.discount_reports import DiscountReports 
+from resources.reports.cog_reports.cog_reports import CogReports
+from resources.reports.expense_reports.expenses_reports import ExpensesReports
+from resources.reports.other_income_reports.other_income_reports import OtherIncomeReports
+from resources.reports.other_expense_reports.other_expenses_reports import OtherExpensesReports
+
 
 class FinanceReports():
             
@@ -135,13 +142,10 @@ class FinanceReports():
                 
          #Try except block to handle data extraction
         try:           
-            
             income_statement_data = IncomeStatement.get_profit_loss_balance(self, user, details)
             
             if int(income_statement_data['status']) == 200:
-                print(income_statement_data)
                 income_statement = income_statement_data['response']              
-            #     total_equity_accounts_balance = income_statement_data['response'][1]
                
                 message = {'status':200,
                            'response':income_statement,
@@ -246,5 +250,211 @@ class FinanceReports():
         except Exception as error:
             message = {'status':501,
                        'response': 0,
-                       'description':'Failed to fetch share holder accounts records. {}'.format(error)}
+                       'description':'Failed to fetch liability accounts records. {}'.format(error)}
             return message
+        
+    def get_revenue_accounts(self, user):
+        details = request.get_json()
+
+        if details == None:
+            message = {'status':401,
+                       'description':'Request data is missing some details!'}
+            return jsonify(message)
+
+         #Try except block to handle data extraction
+        try:                        
+            #Get assets accounts            
+            revenue_data = RevenueReports.get_revenue_accounts(self, user, details)
+            # print(revenue_data['response'][0])
+            if int(revenue_data['status']) == 200:
+                revenue_accounts = revenue_data['response'][0]
+                total_revenue_accounts_balance = revenue_data['response'][1]
+                message = {'status':200,
+                           'response':[revenue_accounts,total_revenue_accounts_balance],
+                           'description':'Report details was fetched successfully'}
+
+                return jsonify(message)
+            
+            else:
+                message = {'status':revenue_data['status'],
+                           'response':[],
+                           'description':'Report was not found'}
+
+                return jsonify(message)
+
+
+        except Exception as error:
+            message = {'status':501,
+                       'response':[],
+                       'description':'Failed to fetch revenue accounts records. {}'.format(error)}
+            return jsonify(message)
+        
+        
+    def get_discount_accounts(self, user):
+        details = request.get_json()
+
+        if details == None:
+            message = {'status':401,
+                       'description':'Request data is missing some details!'}
+            return jsonify(message)
+
+         #Try except block to handle data extraction
+        try:                        
+            #Get assets accounts            
+            discount_data = DiscountReports.get_discount_accounts(self, user, details)
+            # print(discount_data['response'][0])
+            if int(discount_data['status']) == 200:
+                discount_accounts = discount_data['response'][0]
+                total_discount_accounts_balance = discount_data['response'][1]
+                message = {'status':200,
+                           'response':[discount_accounts,total_discount_accounts_balance],
+                           'description':'Report details was fetched successfully'}
+
+                return jsonify(message)
+            
+            else:
+                message = {'status':discount_data['status'],
+                           'response':[],
+                           'description':'Report was not found'}
+
+                return jsonify(message)
+
+
+        except Exception as error:
+            message = {'status':501,
+                       'response':[],
+                       'description':'Failed to fetch discount accounts records. {}'.format(error)}
+            return jsonify(message)
+        
+    def get_cog_accounts(self, user):
+        details = request.get_json()
+
+        if details == None:
+            message = {'status':401,
+                       'description':'Request data is missing some details!'}
+            return jsonify(message)
+
+         #Try except block to handle data extraction
+        try:                        
+            #Get cog accounts            
+            cog_data = CogReports.get_cog_accounts(self, user, details)
+            # print(cog_data['response'][0])
+            if int(cog_data['status']) == 200:
+                cog_accounts = cog_data['response'][0]
+                total_cog_accounts_balance = cog_data['response'][1]
+                message = {'status':200,
+                           'response':[cog_accounts, total_cog_accounts_balance],
+                           'description':'Report details was fetched successfully'}
+
+                return jsonify(message)
+            
+            else:
+                message = {'status':cog_data['status'],
+                           'description':'Report was not found'}
+
+                return jsonify(message)
+
+
+        except Exception as error:
+            message = {'status':501,
+                       'description':'Failed to fetch cog accounts records one. {}'.format(error)}
+            return jsonify(message)
+        
+    def get_expenses_accounts(self, user):
+        details = request.get_json()
+
+        if details == None:
+            message = {'status':401,
+                       'description':'Request data is missing some details!'}
+            return jsonify(message)
+
+         #Try except block to handle data extraction
+        try:                        
+            #Get expenses accounts            
+            expenses_data = ExpensesReports.get_expenses_accounts(self, user, details)
+            if int(expenses_data['status']) == 200:
+                expenses_accounts = expenses_data['response'][0]
+                total_expenses_accounts_balance = expenses_data['response'][1]
+                message = {'status':200,
+                           'response':[expenses_accounts, total_expenses_accounts_balance],
+                           'description':'Report details was fetched successfully'}
+
+                return jsonify(message)
+            
+            else:
+                message = {'status':expenses_data['status'],
+                           'description':'Report was not found'}
+
+                return jsonify(message)
+
+
+        except Exception as error:
+            message = {'status':501,
+                       'description':'Failed to fetch expenses accounts records one. {}'.format(error)}
+            return jsonify(message)
+
+    def get_other_income_accounts(self, user):
+        details = request.get_json()
+
+        if details == None:
+            message = {'status':401,
+                       'description':'Request data is missing some details!'}
+            return jsonify(message)
+
+         #Try except block to handle data extraction
+        try:                        
+            #Get other income accounts            
+            otherincome_data = OtherIncomeReports.get_other_income_accounts(self, user, details)
+            if int(otherincome_data['status']) == 200:
+                otherincome_accounts = otherincome_data['response'][0]
+                total_otherincome_accounts_balance = otherincome_data['response'][1]
+                message = {'status':200,
+                           'response':[otherincome_accounts, total_otherincome_accounts_balance],
+                           'description':'Report details was fetched successfully'}
+
+                return jsonify(message)
+            
+            else:
+                message = {'status':otherincome_data['status'],
+                           'description':'Report was not found'}
+
+                return jsonify(message)
+
+
+        except Exception as error:
+            message = {'status':501,
+                       'description':'Failed to fetch other income accounts records one. {}'.format(error)}
+            return jsonify(message)
+        
+        
+    def get_other_expenses_accounts(self, user):
+        details = request.get_json()
+
+        if details == None:
+            message = {'status':401,
+                       'description':'Request data is missing some details!'}
+            return jsonify(message)
+
+         #Try except block to handle data extraction
+        try:                        
+            #Get other expenses accounts            
+            otherexpenses_data = OtherExpensesReports.get_other_expenses_accounts(self, user, details)
+            if int(otherexpenses_data['status']) == 200:
+                otherexpenses_accounts = otherexpenses_data['response'][0]
+                total_otherexpenses_accounts_balance = otherexpenses_data['response'][1]
+                message = {'status':200,
+                           'response':[otherexpenses_accounts, total_otherexpenses_accounts_balance],
+                           'description':'Report details was fetched successfully'}
+
+                return jsonify(message)
+            
+            else:
+                message = {'status':otherexpenses_data['status'],
+                           'description':'Report was not found'}
+
+                return jsonify(message)
+
+        except Exception as error:
+            message = {'status':501,
+                       'description':'Failed to fetch other expenses accounts records one. {}'.format(error)}
+            return jsonify(message)

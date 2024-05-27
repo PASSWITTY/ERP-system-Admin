@@ -30,14 +30,10 @@ class IncomeStatement():
             total_income = 0
             total_expenses = 0
             
-            total_income = float(total_income)          
-
-            total_expenses = float(total_expenses)
             status = details['status']
 
-            
             #Get total income Balance
-            cur.execute("""SELECT sum(balance) totalincome FROM accounts WHERE status = %s AND type = %s or type = %s ORDER BY id ASC""", ([status, income, other_income]))
+            cur.execute("""SELECT sum(balance) totalincome FROM accounts WHERE status = %s AND (type = %s or type = %s) ORDER BY id ASC""", ([status, income, other_income]))
             totalincome = cur.fetchone()
             if totalincome:
                total_income = float(totalincome['totalincome'])
@@ -45,7 +41,7 @@ class IncomeStatement():
                 total_income = 0
 
             #Get total expenses Balance
-            cur.execute("""SELECT sum(balance) totalexpenses FROM accounts WHERE status = %s AND type = %s or type = %s or type = %s or type = %s or type = %s ORDER BY id ASC""", ([status, cog, expenses, other_expenses, discounts, tax_expenses]))
+            cur.execute("""SELECT sum(balance) totalexpenses FROM accounts WHERE status = %s AND (type = %s or type = %s or type = %s or type = %s or type = %s) ORDER BY id ASC""", ([status, cog, expenses, other_expenses, discounts, tax_expenses]))
             totalexpenses = cur.fetchone()
             if totalexpenses:            
                total_expenses = float(totalexpenses['totalexpenses'])

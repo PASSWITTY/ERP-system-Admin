@@ -18,7 +18,7 @@ class RevenueReports():
          #Try except block to handle data extraction
         try:                        
             #Get revenue accounts            
-            income = 14
+            income = 18
 
             total_revenue_accounts = []
             revenue_data = []

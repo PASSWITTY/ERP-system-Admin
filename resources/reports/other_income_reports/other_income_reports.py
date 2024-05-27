@@ -17,7 +17,7 @@ class OtherIncomeReports():
          #Try except block to handle data extraction
         try:                        
             #Get other income accounts            
-            other_income = 17
+            other_income = 24
 
             total_otherincome_accounts = []
             otherincome_data = []
